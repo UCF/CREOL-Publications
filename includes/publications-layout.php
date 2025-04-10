@@ -2,16 +2,6 @@
 /**
  * Handles the form and the output.
  **/
-	if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
-		// make sure only publications_display is output
-		$pubyr = isset($_GET['pubyr']) ? $_GET['pubyr'] : ALL_YEARS;
-		$type = isset($_GET['type']) ? $_GET['type'] : ALL_TYPES;
-		$pubAuth = isset($_GET['pubAuth']) ? $_GET['pubAuth'] : ALL_AUTHORS;
-		$page = isset($_GET['pg']) ? $_GET['pg'] : 1;
-		$search = isset($_GET['search']) ? $_GET['search'] : "";
-		publications_display($pubyr, $type, $pubAuth, $page, $search);
-		exit;
-	}
  //  TODO:
  //  Make search button work.
 
@@ -36,7 +26,7 @@
 	<div class="container">
 		<div class="row">
 			<!-- Form -->
-				<form method="get" name="form" class="form-inline">
+				<form method="get" name="form" id="publication-form" class="form-inline">
 					<div class="col-xs-12 col-sm-6 col-md-2 form-group">
 						<select name="pubyr" id="pubyr" class="form-control" onchange="loadPublications()" style="width: 100%;">
 							<option value=0>Year</option>
@@ -83,7 +73,7 @@
 				</form>
 
 				<script>
-					let form = document.getElementsByName("form")[0];
+					let form = document.getElementByID("publcations-form")[0];
 					let elements = form.elements;
 
 					function loadPublications() {
@@ -100,36 +90,39 @@
 							elements[i].style.border = "1px solid #ced4da";
 						}
 
-						// build query parameters from the form fields and add ajax=1
+						// build query parameters from the form fields
 						let formData = new FormData(form);
-						formData.append("ajax", "1");
 						let params = new URLSearchParams(formData);
 
-						// fetch publications results via AJAX
-						fetch(window.location.pathname + "?" + params.toString())
+						// fetch publications results
+						const url = new URL(window.location);
+						const params = new URLSearchParams(url.search);
+						url.search = params.toString();
+						fetch(url.toString())
 							.then(response => response.text())
-							.then(html => {
-								document.getElementById("results").innerHTML = html; 
-							})
-							.catch(error => console.error('Error loading publications:', error))
-							.finally(() => {
-								// re-enable form fields
+							.then(data => {
+								const parser = new DOMParser();
+								const doc = parser.parseFromString(data, 'text/html');
+								const results = doc.getElementById('results');
+								document.getElementById('results').innerHTML = results;
+								// re-enable the form fields after results are loaded
 								for (let i = 0, len = elements.length; i < len; ++i) {
-									elements[i].style.pointerEvents = "";
-									elements[i].onclick = null;
-									elements[i].onkeydown = null;
-									elements[i].style.backgroundColor = "";
-									elements[i].style.color = "";
-									elements[i].style.border = "";
+									elements[i].style.pointerEvents = "auto";
+									elements[i].style.backgroundColor = "#fff";
+									elements[i].style.color = "#212529";
+									elements[i].style.border = "1px solid #ced4da";
 								}
-							});
+							})
+							.catch(error => console.error('Error:', error));
+
+
 					}
 
 					// attach handler to search button click
 					document.querySelector("button.btn-primary").addEventListener("click", loadPublications);
 				</script>
 
-
+			<!-- Results Container -->
 			<div class="col mt-lg-0 mt-5">
 				<?php
 
