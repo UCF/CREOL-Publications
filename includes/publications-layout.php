@@ -29,7 +29,7 @@
 			<!-- Form -->
 				<form method="get" name="form" class="form-inline">
 					<div class="col-xs-12 col-sm-6 col-md-2 form-group">
-						<select name="pubyr" id="pubyr" class="form-control" onchange="handleSelectorChange()" style="width: 100%;">
+						<select name="pubyr" id="pubyr" class="form-control" onchange="loadPublications()" style="width: 100%;">
 							<option value=0>Year</option>
 							<?php for ( $i = 0; $i < count( $year_arr ); $i++ ) : ?>
 								<option value="<?= $year_arr[ $i ]->PublicationTxt ?>">
@@ -39,7 +39,7 @@
 						</select>
 					</div>
 					<div class="col-xs-12 col-sm-6 col-md-2 form-group">
-						<select name="type" id="type" class="form-control" onchange="handleSelectorChange()" style="width: 100%;">
+						<select name="type" id="type" class="form-control" onchange="loadPublications()" style="width: 100%;">
 							<option value=0>Type</option>
 							<?php for ( $i = 0; $i < count( $type_arr ); $i++ ) : ?>
 								<option value="<?= $type_arr[ $i ]->PublicationType ?>">
@@ -49,7 +49,8 @@
 						</select>
 					</div>
 					<div class="col-xs-12 col-sm-6 col-md-2 form-group">
-						<select name="pubAuth" id="pubAuth" class="form-control" onchange="handleSelectorChange()" style="width: 100%;">
+						<select name="pubAuth" id="pubAuth" class="form-control" onchange="loadPublictions
+						()" style="width: 100%;">
 							<option value="0">Author</option>
 							<?php for ( $i = 0; $i < count( $pubAuth_arr ); $i++ ) : ?>
 								<option value="<?= $pubAuth_arr[ $i ]->PeopleID ?>">
@@ -120,16 +121,30 @@
 
 
 			<div class="col mt-lg-0 mt-5">
+				<?php
+
+				$isDefault = true;
+
+				$pubyr = isset($_GET['pubyr']) ? $_GET['pubyr'] : ALL_YEARS;
+				$type = isset($_GET['type']) ? $_GET['type'] : ALL_TYPES;
+				$pubAuth = isset($_GET['pubAuth']) ? $_GET['pubAuth'] : ALL_AUTHORS;
+				$page = isset($_GET['pg']) ? $_GET['pg'] : 1;
+				$search = isset($_GET['search']) ? $_GET['search'] : "";
+
+				if (isset($_GET['pubyr']) || isset($_GET['type']) || isset($_GET['pubAuth']) || isset($_GET['pg']) || isset($_GET['search'])) {
+					$isDefault = false;
+				}
+
+				?>
 				<div id="results">
-					<?php
-					if ($isDefault) {
-						$authortToUse = $isDefault && !empty($wporg_atts['auth']) ? $wporg_atts['auth'] : $pubAuth;
-						publications_display($pubyr, $type, $authortToUse, $page, $search);
-					} else {
-						publications_display($pubyr, $type, $pubAuth, $page, $search);
-					}
-					?>
-				</div>
+				<?php
+				if ($isDefault) {
+					$authortToUse = $isDefault && !empty($wporg_atts['auth']) ? $wporg_atts['auth'] : $pubAuth;
+					publications_display($pubyr, $type, $authortToUse, $page, $search);
+				} else {
+					publications_display($pubyr, $type, $pubAuth, $page, $search);
+				}
+				?>
 			</div>
 		</div>
 	</div>
