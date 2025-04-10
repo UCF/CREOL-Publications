@@ -73,7 +73,7 @@
 				</form>
 
 				<script>
-					let form = document.getElementByID("publcations-form")[0];
+					let form = document.getElementByID("publication-form")[0];
 					let elements = form.elements;
 
 					function loadPublications() {
@@ -120,6 +120,10 @@
 
 					// attach handler to search button click
 					document.querySelector("button.btn-primary").addEventListener("click", loadPublications);
+					form.addEventListener("submit", function(e) {
+					e.preventDefault();
+					loadPublications();
+				});
 				</script>
 
 			<!-- Results Container -->
