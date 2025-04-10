@@ -75,60 +75,61 @@
 				<script>
 					let form = document.getElementsByName("form")[0];
 					let elements = form.elements;
-					function handleSelectorChange() {
+
+					function loadPublications() {
+						// reset page to 1 on selector change
 						document.getElementById('pg').value = 1;
 
+						// disable the form fields for visual feedback
 						for (let i = 0, len = elements.length; i < len; ++i) {
 							elements[i].style.pointerEvents = "none";
 							elements[i].onclick = () => false;
 							elements[i].onkeydown = () => false;
 							elements[i].style.backgroundColor = "#f0f0f0";
-			            	elements[i].style.color = "#6c757d";
-			            	elements[i].style.border = "1px solid #ced4da";
+							elements[i].style.color = "#6c757d";
+							elements[i].style.border = "1px solid #ced4da";
 						}
-						form.submit();
+
+						// build query parameters from the form fields and add ajax=1
+						let formData = new FormData(form);
+						let params = new URLSearchParams(formData);
+
+						// fetch publications results via AJAX
+						fetch(window.location.pathname + "?" + params.toString())
+							.then(response => response.text())
+							.then(html => {
+								document.getElementById("results").innerHTML = html; 
+							})
+							.catch(error => console.error('Error loading publications:', error))
+							.finally(() => {
+								// re-enable form fields
+								for (let i = 0, len = elements.length; i < len; ++i) {
+									elements[i].style.pointerEvents = "";
+									elements[i].onclick = null;
+									elements[i].onkeydown = null;
+									elements[i].style.backgroundColor = "";
+									elements[i].style.color = "";
+									elements[i].style.border = "";
+								}
+							});
 					}
+
+					// attach handler to search button click
+					document.querySelector("button.btn-primary").addEventListener("click", loadPublications);
 				</script>
 
+
 			<div class="col mt-lg-0 mt-5">
-				<?php
-
-				$isDefault = true;
-
-				$pubyr = isset($_GET['pubyr']) ? $_GET['pubyr'] : ALL_YEARS;
-				$type = isset($_GET['type']) ? $_GET['type'] : ALL_TYPES;
-				$pubAuth = isset($_GET['pubAuth']) ? $_GET['pubAuth'] : ALL_AUTHORS;
-				$page = isset($_GET['pg']) ? $_GET['pg'] : 1;
-				$search = isset($_GET['search']) ? $_GET['search'] : "";
-				
-				if (isset($_GET['pubyr']) || isset($_GET['type']) || isset($_GET['pubAuth']) || isset($_GET['pg']) || isset($_GET['search'])) {
-					$isDefault = false;
-				}
-
-				if( $isDefault) {
-					$authorToUse = $isDefault && !empty($wporg_atts['auth']) ? $wporg_atts['auth'] : $pubAuth;
-
-					publications_display($pubyr, $type, $authorToUse, $page, $search);
-					?>
-					<script>
-						document.getElementById("pubAuth").value = <?php echo $authorToUse ?>;
-					</script>
+				<div id="results">
 					<?php
-				}
-				else {
-					publications_display($pubyr, $type, $pubAuth, $page, $search);
+					if ($isDefault) {
+						$authortToUse = $isDefault && !empty($wporg_atts['auth']) ? $wporg_atts['auth'] : $pubAuth;
+						publications_display($pubyr, $type, $authortToUse, $page, $search);
+					} else {
+						publications_display($pubyr, $type, $pubAuth, $page, $search);
+					}
 					?>
-					<script>
-						const urlParams = new URLSearchParams(window.location.search);
-						document.getElementById("pubyr").value = urlParams.get("pubyr") || "<?= ALL_YEARS ?>";
-						document.getElementById("type").value = urlParams.get("type") || "<?= ALL_TYPES ?>";
-						document.getElementById("pubAuth").value = urlParams.get("pubAuth") || "<?= ALL_AUTHORS ?>";
-						document.getElementById("search").value = urlParams.get("search") || "";
-					</script>
-					<?php
-				}
-				?>
-				
+				</div>
 			</div>
 		</div>
 	</div>
