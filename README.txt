@@ -1,4 +1,4 @@
-=== {{CREOL Publications}} ===
+=== {{CREOL Publications Plugin}} ===
 Contributors: ucfwebcom
 Requires at least: 5.3 {{Update as needed!}}
 Tested up to: 5.3 {{Update as needed!}}
