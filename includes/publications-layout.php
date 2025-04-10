@@ -48,7 +48,7 @@
 						</select>
 					</div>
 					<div class="col-xs-12 col-sm-6 col-md-2 form-group">
-						<select name="pubAuth" id="pubAuth" class="form-control" onchange="loadPublictions
+						<select name="pubAuth" id="pubAuth" class="form-control" onchange="loadPublications
 						()" style="width: 100%;">
 							<option value="0">Author</option>
 							<?php for ( $i = 0; $i < count( $pubAuth_arr ); $i++ ) : ?>
@@ -96,7 +96,6 @@
 
 						// fetch publications results
 						const url = new URL(window.location);
-						const params = new URLSearchParams(url.search);
 						url.search = params.toString();
 						fetch(url.toString())
 							.then(response => response.text())
