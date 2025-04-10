@@ -73,7 +73,7 @@
 				</form>
 
 				<script>
-					let form = document.getElementByID("publication-form");
+					let form = document.getElementById("publication-form");
 					let elements = form.elements;
 
 					function loadPublications() {
