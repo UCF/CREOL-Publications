@@ -2,7 +2,16 @@
 /**
  * Handles the form and the output.
  **/
-
+	if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
+		// make sure only publications_display is output
+		$pubyr = isset($_GET['pubyr']) ? $_GET['pubyr'] : ALL_YEARS;
+		$type = isset($_GET['type']) ? $_GET['type'] : ALL_TYPES;
+		$pubAuth = isset($_GET['pubAuth']) ? $_GET['pubAuth'] : ALL_AUTHORS;
+		$page = isset($_GET['pg']) ? $_GET['pg'] : 1;
+		$search = isset($_GET['search']) ? $_GET['search'] : "";
+		publications_display($pubyr, $type, $pubAuth, $page, $search);
+		exit;
+	}
  //  TODO:
  //  Make search button work.
 
@@ -93,6 +102,7 @@
 
 						// build query parameters from the form fields and add ajax=1
 						let formData = new FormData(form);
+						formData.append("ajax", "1");
 						let params = new URLSearchParams(formData);
 
 						// fetch publications results via AJAX
