@@ -103,7 +103,7 @@
 								const parser = new DOMParser();
 								const doc = parser.parseFromString(data, 'text/html');
 								const results = doc.getElementById('results');
-								document.getElementById('results').innerHTML = results;
+								document.getElementById('results').innerHTML = results.innerHTML;
 								// re-enable the form fields after results are loaded
 								for (let i = 0, len = elements.length; i < len; ++i) {
 									elements[i].style.pointerEvents = "auto";
