@@ -193,8 +193,14 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 		<?php
 		return;
 	}
-	$countUrl = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfoCount?Yr=' . $year . '&Type=' . $type . '&Author=' . $pubAuth;
-	$total_publications = get_plain_text($countUrl);
+	// Request ALL filtered results (omit pagination)
+	$all_results_url = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfo?pubyr=' . $year . '&pubType=' . $type . '&pubAuth=' . $pubAuth . '&pubsearch=' . $search;
+	$all_results = get_json_nocache($all_results_url);
+	
+	// Count only the filtered items
+	$total_publications = is_array($all_results) ? count($all_results) : 0;
+	//$countUrl = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfoCount?Yr=' . $year . '&Type=' . $type . '&Author=' . $pubAuth;
+	//$total_publications = get_plain_text($countUrl);
 
 	error_log(json_encode($publication_info_arr));
 
