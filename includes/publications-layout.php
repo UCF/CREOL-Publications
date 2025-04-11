@@ -198,7 +198,9 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 	$all_results = get_json_nocache($all_results_url);
 	
 	// Count only the filtered items
-	$total_publications = is_array($all_results) ? count($all_results) : 0;
+	$total_publications = isset($all_results['response']) && is_array($all_results['response'])
+    ? count($all_results['response'])
+    : 0;
 	//$countUrl = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfoCount?Yr=' . $year . '&Type=' . $type . '&Author=' . $pubAuth;
 	//$total_publications = get_plain_text($countUrl);
 
