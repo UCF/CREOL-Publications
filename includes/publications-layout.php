@@ -212,35 +212,32 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 	<?php
 	$range = 3;
 	echo '<div class="text-right">';
-    if ($page > 1) {		
-        echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=1">First</a> ';
-        echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . ($page - 1) . '"><i class="fa fa-caret-left" aria-hidden="true"></i></a> ';
-    }
-	else {
-		echo '<span href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=1">First</span> ';
-        echo '<span href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . ($page - 1) . '"><i class="fa fa-caret-left" aria-hidden="true"></i></span> ';
+	if ($page > 1) {
+		echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=1&search=' . $search . '">First</a> ';
+		echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . ($page - 1) . '&search=' . $search . '"><i class="fa fa-caret-left" aria-hidden="true"></i></a> ';
+	} else {
+		echo '<span>First</span> ';
+		echo '<span><i class="fa fa-caret-left" aria-hidden="true"></i></span> ';
 	}
 
-    for ($x = ($page - $range); $x < (($page + $range) + 1); $x++) {
-        if (($x > 0) && ($x <= $totalPages)) {
-            if ($x == $page) {
-                echo '<strong>' . $x . '</strong> ';
-            } else {
-                echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . $x . '">' . $x .'</a> '; 
-            }
-        }
-    }
-
-    if ($page < $totalPages) {
-        echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . ($page + 1) . '"><i class="fa fa-caret-right" aria-hidden="true"></i></a> ';
-        echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . $totalPages . '">Last</a>';
-    }
-	else {
-		echo '<span href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . ($page + 1) . '"><i class="fa fa-caret-right" aria-hidden="true"></i></span> ';
-        echo '<span href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . $totalPages . '">Last</span>';
+	for ($x = ($page - $range); $x < (($page + $range) + 1); $x++) {
+		if (($x > 0) && ($x <= $totalPages)) {
+			if ($x == $page) {
+				echo '<strong>' . $x . '</strong> ';
+			} else {
+				echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . $x . '&search=' . $search . '">' . $x . '</a> ';
+			}
+		}
 	}
 
-    echo '</div>';
+	if ($page < $totalPages) {
+		echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . ($page + 1) . '&search=' . $search . '"><i class="fa fa-caret-right" aria-hidden="true"></i></a> ';
+		echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . $totalPages . '&search=' . $search . '">Last</a>';
+	} else {
+		echo '<span><i class="fa fa-caret-right" aria-hidden="true"></i></span> ';
+		echo '<span>Last</span>';
+	}
+	echo '</div>';
 	?>
 	<script>
 		var publications = <?= json_encode($publication_info_arr); ?>;
