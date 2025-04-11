@@ -97,6 +97,8 @@
 						// fetch publications results
 						const url = new URL(window.location);
 						url.search = params.toString();
+						 // update the browser URL without reloading the page
+   						 window.history.replaceState(null, "", url.toString());
 						fetch(url.toString())
 							.then(response => response.text())
 							.then(data => {
