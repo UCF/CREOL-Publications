@@ -178,6 +178,49 @@
 	return ob_get_clean();
 }
 
+	/**
+	* Get the total number of publications matching the given filters,
+	* including a search term, by paging through the API until no more results.
+	*
+	* @param int    $year     Publication year (0 for any).
+	* @param int    $type     Publication type (0 for any).
+	* @param string $pubAuth  Author filter (0 or empty for any).
+	* @param string $search   Search term (empty for no search).
+	* @return int             Total count of matching publications.
+	*/
+	function get_filtered_publication_count( $year, $type, $pubAuth, $search ) {
+		$base_url = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfo';
+		$total    = 0;
+		$page     = 1;
+	
+		// Keep fetching until we get an empty response array
+		do {
+			// Build query params for this page
+			$params = [
+				'pubyr'       => $year,
+				'pubType'     => $type,
+				'pubAuth'     => $pubAuth,
+				'pubsearch'   => $search,
+				'pg'          => $page,
+			];
+			$url  = $base_url . '?' . http_build_query( $params );
+			$data = get_json_nocache( $url );
+	
+			// Drill into the response array
+			$items = isset( $data['response'] ) && is_array( $data['response'] )
+				? $data['response']
+				: [];
+	
+			$count_this_page = count( $items );
+			$total          += $count_this_page;
+			$page++;
+	
+			// If page size is 0, or fewer than expected, we’ll break
+		} while ( $count_this_page > 0 );
+	
+		return $total;
+	}
+
 function publications_display( $year, $type, $pubAuth, $page, $search ) {
 	$url = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfo?pubyr=' . $year . '&pubType=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . $page . '&pubsearch=' . $search;
 	$publication_info_arr = get_json_nocache($url);
@@ -193,14 +236,9 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 		<?php
 		return;
 	}
-	// Request ALL filtered results (omit pagination)
-	$all_results_url = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfo?pubyr=' . $year . '&pubType=' . $type . '&pubAuth=' . $pubAuth . '&pubsearch=' . $search;
-	$all_results = get_json_nocache($all_results_url);
+	// Get filtered total (with search)
+	$total_publications = get_filtered_publication_count( $year, $type, $pubAuth, $search );
 	
-	// Count only the filtered items
-	$total_publications = isset($all_results['response']) && is_array($all_results['response'])
-    ? count($all_results['response'])
-    : 0;
 	//$countUrl = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfoCount?Yr=' . $year . '&Type=' . $type . '&Author=' . $pubAuth;
 	//$total_publications = get_plain_text($countUrl);
 
