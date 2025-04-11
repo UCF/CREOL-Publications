@@ -107,9 +107,11 @@
 								// re-enable the form fields after results are loaded
 								for (let i = 0, len = elements.length; i < len; ++i) {
 									elements[i].style.pointerEvents = "auto";
-									elements[i].style.backgroundColor = "#fff";
-									elements[i].style.color = "#212529";
-									elements[i].style.border = "1px solid #ced4da";
+									elements[i].onclick = () => true;
+									elements[i].onkeydown = () => true;
+									elements[i].style.backgroundColor = "";
+									elements[i].style.color = "";
+									elements[i].style.border = "";
 								}
 							})
 							.catch(error => console.error('Error:', error));
