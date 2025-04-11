@@ -207,8 +207,8 @@
 			$data = get_json_nocache( $url );
 	
 			// Drill into the response array
-			$items = isset( $data['response'] ) && is_array( $data['response'] )
-				? $data['response']
+			$items = isset( $data->response ) && is_array($data->response)
+				? $data->response
 				: [];
 	
 			$count_this_page = count( $items );
