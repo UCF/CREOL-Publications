@@ -146,11 +146,27 @@
 				?>
 				<div id="results">
 				<?php
-				if ($isDefault) {
-					$authortToUse = $isDefault && !empty($wporg_atts['auth']) ? $wporg_atts['auth'] : $pubAuth;
-					publications_display($pubyr, $type, $authortToUse, $page, $search);
-				} else {
+				if( $isDefault) {
+					$authorToUse = $isDefault && !empty($wporg_atts['auth']) ? $wporg_atts['auth'] : $pubAuth;
+		 
+						publications_display($pubyr, $type, $authorToUse, $page, $search);
+					?>
+					<script>
+					document.getElementById("pubAuth").value = <?php echo $authorToUse ?>;
+					</script>
+					<?php
+				}
+				else {
 					publications_display($pubyr, $type, $pubAuth, $page, $search);
+				?>
+				<script>
+						const urlParams = new URLSearchParams(window.location.search);
+						document.getElementById("pubyr").value = urlParams.get("pubyr") || "<?= ALL_YEARS ?>";
+						document.getElementById("type").value = urlParams.get("type") || "<?= ALL_TYPES ?>";
+						document.getElementById("pubAuth").value = urlParams.get("pubAuth") || "<?= ALL_AUTHORS ?>";
+						document.getElementById("search").value = urlParams.get("search") || "";
+				</script>
+				<?php
 				}
 				?>
 			</div>
