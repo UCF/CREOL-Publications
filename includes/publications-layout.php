@@ -218,7 +218,7 @@
 	
 				error_log($data->response);
 				error_log(isset($data->response));
-				error_log(is_arrray($data->response));
+				error_log(is_array($data->response));
 			$count_this_page = count( $items );
 			
 			// Debug: Log the number of items retrieved on this page
