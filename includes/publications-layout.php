@@ -28,7 +28,7 @@
 			<!-- Form -->
 				<form method="get" name="form" id="publication-form" class="form-inline">
 					<div class="col-xs-12 col-sm-6 col-md-2 form-group">
-						<select name="pubyr" id="pubyr" class="form-control" onchange="loadPublications()" style="width: 100%;">
+						<select name="pubyr" id="pubyr" class="form-control" onchange="loadPublications(e)" style="width: 100%;">
 							<option value=0>Year</option>
 							<?php for ( $i = 0; $i < count( $year_arr ); $i++ ) : ?>
 								<option value="<?= $year_arr[ $i ]->PublicationTxt ?>">
@@ -38,7 +38,7 @@
 						</select>
 					</div>
 					<div class="col-xs-12 col-sm-6 col-md-2 form-group">
-						<select name="type" id="type" class="form-control" onchange="loadPublications()" style="width: 100%;">
+						<select name="type" id="type" class="form-control" onchange="loadPublications(e)" style="width: 100%;">
 							<option value=0>Type</option>
 							<?php for ( $i = 0; $i < count( $type_arr ); $i++ ) : ?>
 								<option value="<?= $type_arr[ $i ]->PublicationType ?>">
@@ -49,7 +49,7 @@
 					</div>
 					<div class="col-xs-12 col-sm-6 col-md-2 form-group">
 						<select name="pubAuth" id="pubAuth" class="form-control" onchange="loadPublications
-						()" style="width: 100%;">
+						(e)" style="width: 100%;">
 							<option value="0">Author</option>
 							<?php for ( $i = 0; $i < count( $pubAuth_arr ); $i++ ) : ?>
 								<option value="<?= $pubAuth_arr[ $i ]->PeopleID ?>">
@@ -76,7 +76,11 @@
 					let form = document.getElementById("publication-form");
 					let elements = form.elements;
 
-					function loadPublications() {
+					function loadPublications(e) {
+						if(e) {
+							e.preventDefault();
+						}
+
 						// reset page to 1 on selector change
 						document.getElementById('pg').value = 1;
 
@@ -125,7 +129,7 @@
 					document.querySelector("button.btn-primary").addEventListener("click", loadPublications);
 					form.addEventListener("submit", function(e) {
 					e.preventDefault();
-					loadPublications();
+					loadPublications(e);
 				});
 				</script>
 
@@ -174,10 +178,6 @@
 			</div>
 		</div>
 	</div>
-
-	<script>
-		attachPaginationListeners();
-	</script>
 	<?php
 	return ob_get_clean();
 }
