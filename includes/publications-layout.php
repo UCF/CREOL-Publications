@@ -209,17 +209,11 @@
 			// Debug: Log the API URL for this page
 			error_log("Debug: Fetching URL: $url");
 	
+			// Fetch the data from the API, returns an array of publication objects
 			$data = get_json_nocache( $url );
-			
-			// Drill into the response array
-			$items = isset( $data->response ) && is_array($data->response)
-				? $data->response
-				: [];
-	
-				error_log(json_encode($data));
-				//error_log(isset($data->response));
-				//error_log(is_array($data->response));
-			$count_this_page = count( $items );
+				
+			error_log(json_encode($data));
+			$count_this_page = count( $data );
 			
 			// Debug: Log the number of items retrieved on this page
 			error_log("Debug: Page $page returned $count_this_page items.");
