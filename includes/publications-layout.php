@@ -188,7 +188,7 @@
 	* @param string $search   Search term (empty for no search).
 	* @return int             Total count of matching publications.
 	*/
-	
+
 	function get_filtered_publication_count( $year, $type, $pubAuth, $search ) {
 		$base_url = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfo';
 		$total    = 0;
@@ -216,6 +216,9 @@
 				? $data->response
 				: [];
 	
+				error_log($data->response);
+				error_log(isset($data->response));
+				error_log(is_arrray($data->response));
 			$count_this_page = count( $items );
 			
 			// Debug: Log the number of items retrieved on this page
