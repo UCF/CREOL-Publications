@@ -188,6 +188,7 @@
 	* @param string $search   Search term (empty for no search).
 	* @return int             Total count of matching publications.
 	*/
+	
 	function get_filtered_publication_count( $year, $type, $pubAuth, $search ) {
 		$base_url = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfo';
 		$total    = 0;
@@ -197,26 +198,37 @@
 		do {
 			// Build query params for this page
 			$params = [
-				'pubyr'       => $year,
-				'pubType'     => $type,
-				'pubAuth'     => $pubAuth,
-				'pubsearch'   => $search,
-				'pg'          => $page,
+				'pubyr'     => $year,
+				'pubType'   => $type,
+				'pubAuth'   => $pubAuth,
+				'pubsearch' => $search,
+				'pg'        => $page,
 			];
 			$url  = $base_url . '?' . http_build_query( $params );
-			$data = get_json_nocache( $url );
 	
+			// Debug: Log the API URL for this page
+			error_log("Debug: Fetching URL: $url");
+	
+			$data = get_json_nocache( $url );
+			
 			// Drill into the response array
 			$items = isset( $data->response ) && is_array($data->response)
 				? $data->response
 				: [];
 	
 			$count_this_page = count( $items );
-			$total          += $count_this_page;
+			
+			// Debug: Log the number of items retrieved on this page
+			error_log("Debug: Page $page returned $count_this_page items.");
+			
+			$total += $count_this_page;
 			$page++;
 	
-			// If page size is 0, or fewer than expected, we’ll break
+			// Break when no more items are returned
 		} while ( $count_this_page > 0 );
+	
+		// Debug: Log the total publication count
+		error_log("Debug: Total publications count: $total");
 	
 		return $total;
 	}
