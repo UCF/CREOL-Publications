@@ -324,37 +324,61 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 	<script>
 
 	document.addEventListener("DOMContentLoaded", function() {
-    // Delegate click events from the pagination container
-    const paginationContainer = document.querySelector('.pagination-container');
-    if (paginationContainer) {
-        paginationContainer.addEventListener("click", function(e) {
-            // Find the closest anchor element
-            const link = e.target.closest("a");
-            if (link) {
-                e.preventDefault();
-                const url = link.getAttribute("href");
-                console.log("Loading pagination via AJAX with URL:", url);
-                // Optionally update the URL without reload
-                window.history.pushState(null, '', url);
-                // Fetch the new content with AJAX
-                fetch(url)
-                    .then(response => response.text())
-                    .then(data => {
-                        // Create a temporary DOM parser to extract plugin content
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(data, 'text/html');
-                        // Update your results container
-                        const results = doc.getElementById('results').innerHTML;
-                        document.getElementById('results').innerHTML = results;
-                        // Optionally update the pagination HTML if needed
-                        const newPagination = doc.querySelector('.text-right').innerHTML;
-                        paginationContainer.innerHTML = newPagination;
-                    })
-                    .catch(error => console.error('Error fetching paginated content:', error));
-				}
+		// Select all pagination links inside the container
+		const paginationLinks = document.querySelectorAll('.pagination-container a');
+		
+		paginationLinks.forEach(link => {
+			link.addEventListener("click", function(e) {
+				e.preventDefault();
+				const url = this.getAttribute("href");
+				console.log("Loading pagination via AJAX with URL:", url);
+				window.history.pushState(null, '', url);
+				fetch(url)
+					.then(response => response.text())
+					.then(data => {
+						const parser = new DOMParser();
+						const doc = parser.parseFromString(data, 'text/html');
+						const results = doc.getElementById('results').innerHTML;
+						document.getElementById('results').innerHTML = results;
+						// Optionally update pagination links if they have changed 
+						const newPaginationHTML = doc.querySelector('.pagination-container').innerHTML;
+						document.querySelector('.pagination-container').innerHTML = newPaginationHTML;
+						// Reattach listeners to the new links
+						attachPaginationListeners();
+					})
+					.catch(error => console.error('Error fetching paginated content:', error));
 			});
-		}
+		});
 	});
+
+	function attachPaginationListeners() {
+		const paginationLinks = document.querySelectorAll('.pagination-container a');
+		
+		paginationLinks.forEach(link => {
+			link.addEventListener("click", function(e) {
+				e.preventDefault();
+				const url = this.getAttribute("href");
+				console.log("Loading pagination via AJAX with URL:", url);
+				window.history.pushState(null, '', url);
+				fetch(url)
+					.then(response => response.text())
+					.then(data => {
+						const parser = new DOMParser();
+						const doc = parser.parseFromString(data, 'text/html');
+						const results = doc.getElementById('results').innerHTML;
+						document.getElementById('results').innerHTML = results;
+						const newPaginationHTML = doc.querySelector('.pagination-container').innerHTML;
+						document.querySelector('.pagination-container').innerHTML = newPaginationHTML;
+						// Continue reattaching listeners for updated content
+						attachPaginationListeners();
+					})
+					.catch(error => console.error('Error fetching paginated content:', error));
+			});
+		});
+	}
+
+	// Initially attach listeners
+	attachPaginationListeners();
 	</script>
 
 	<?php
