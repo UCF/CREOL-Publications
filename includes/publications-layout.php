@@ -215,7 +215,7 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 
 	<?php
 	$range = 3;
-	echo '<div class="text-right">';
+	echo '<div class="text-right pagination-container">';
 	if ($page > 1) {
 		echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=1&search=' . $search . '">First</a> ';
 		echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . ($page - 1) . '&search=' . $search . '"><i class="fa fa-caret-left" aria-hidden="true"></i></a> ';
@@ -290,7 +290,7 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 	}
 	
 	$range = 3;
-	echo '<div class="text-right">';
+	echo '<div class="text-right pagination-container">';
 	if ($page > 1) {
 		echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=1&search=' . $search . '">First</a> ';
 		echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . ($page - 1) . '&search=' . $search . '"><i class="fa fa-caret-left" aria-hidden="true"></i></a> ';
@@ -319,4 +319,43 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 	echo '</div>';
 	echo '<br>';
 	echo '<br>';
+	?>
+
+	<script>
+
+	document.addEventListener("DOMContentLoaded", function() {
+    // Delegate click events from the pagination container
+    const paginationContainer = document.querySelector('.pagination-container');
+    if (paginationContainer) {
+        paginationContainer.addEventListener("click", function(e) {
+            // Find the closest anchor element
+            const link = e.target.closest("a");
+            if (link) {
+                e.preventDefault();
+                const url = link.getAttribute("href");
+                console.log("Loading pagination via AJAX with URL:", url);
+                // Optionally update the URL without reload
+                window.history.pushState(null, '', url);
+                // Fetch the new content with AJAX
+                fetch(url)
+                    .then(response => response.text())
+                    .then(data => {
+                        // Create a temporary DOM parser to extract plugin content
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(data, 'text/html');
+                        // Update your results container
+                        const results = doc.getElementById('results').innerHTML;
+                        document.getElementById('results').innerHTML = results;
+                        // Optionally update the pagination HTML if needed
+                        const newPagination = doc.querySelector('.text-right').innerHTML;
+                        paginationContainer.innerHTML = newPagination;
+                    })
+                    .catch(error => console.error('Error fetching paginated content:', error));
+				}
+			});
+		}
+	});
+	</script>
+
+	<?php
 }
