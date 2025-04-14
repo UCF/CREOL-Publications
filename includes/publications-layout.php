@@ -216,7 +216,7 @@
 				? $data->response
 				: [];
 	
-				error_log($data->response);
+				error_log($data);
 				error_log(isset($data->response));
 				error_log(is_array($data->response));
 			$count_this_page = count( $items );
