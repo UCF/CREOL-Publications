@@ -197,7 +197,7 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 	}
 	
 	
-	$countUrl = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfoCount?Yr=' . $year . '&Type=' . $type . '&Author=' . $pubAuth;
+	$countUrl = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfoCount?Yr=' . $year . '&Type=' . $type . '&Author=' . $pubAuth . '&search=' . $search;
 	$total_publications = get_plain_text($countUrl);
 
 	error_log(json_encode($publication_info_arr));
