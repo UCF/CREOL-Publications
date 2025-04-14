@@ -174,6 +174,10 @@
 			</div>
 		</div>
 	</div>
+
+	<script>
+		attachPaginationListeners();
+	</script>
 	<?php
 	return ob_get_clean();
 }
