@@ -212,8 +212,8 @@
 			// Fetch the data from the API, returns an array of publication objects
 			$data = get_json_nocache( $url );
 				
-			error_log(json_encode($data));
-			$count_this_page = count( $data );
+			error_log(print_r($data, true));
+			$count_this_page = count($data);
 			
 			// Debug: Log the number of items retrieved on this page
 			error_log("Debug: Page $page returned $count_this_page items.");
