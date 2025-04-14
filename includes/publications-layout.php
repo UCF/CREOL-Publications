@@ -336,63 +336,39 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 	?>
 
 	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			const paginationContainer = document.querySelector('.pagination-container');
 
-	document.addEventListener("DOMContentLoaded", function() {
-		// Select all pagination links inside the container
-		const paginationLinks = document.querySelectorAll('.pagination-container a');
-		
-		paginationLinks.forEach(link => {
-			link.addEventListener("click", function(e) {
-				e.preventDefault();
-				const url = this.getAttribute("href");
-				console.log("Loading pagination via AJAX with URL:", url);
-				window.history.pushState(null, '', url);
-				fetch(url)
-					.then(response => response.text())
-					.then(data => {
-						const parser = new DOMParser();
-						const doc = parser.parseFromString(data, 'text/html');
-						const results = doc.getElementById('results').innerHTML;
-						document.getElementById('results').innerHTML = results;
-						// Optionally update pagination links if they have changed 
-						const newPaginationHTML = doc.querySelector('.pagination-container').innerHTML;
-						document.querySelector('.pagination-container').innerHTML = newPaginationHTML;
-						// Reattach listeners to the new links
-						attachPaginationListeners();
-					})
-					.catch(error => console.error('Error fetching paginated content:', error));
-			});
+			if (paginationContainer) {
+				paginationContainer.addEventListener("click", function(e) {
+					// Check if an anchor tag was clicked
+					let link = e.target;
+					// If an inner element was clicked (like an <i> icon), traverse up until the <a> is found:
+					while (link && link.tagName !== "A") {
+						link = link.parentElement;
+					}
+					if (link && link.tagName === "A") {
+						e.preventDefault();
+						const url = link.getAttribute("href");
+						console.log("Loading pagination via AJAX with URL:", url);
+						window.history.pushState(null, '', url);
+						fetch(url)
+							.then(response => response.text())
+							.then(data => {
+								const parser = new DOMParser();
+								const doc = parser.parseFromString(data, 'text/html');
+								const results = doc.getElementById('results').innerHTML;
+								document.getElementById('results').innerHTML = results;
+								// Update pagination container HTML
+								const newPaginationHTML = doc.querySelector('.pagination-container').innerHTML;
+								paginationContainer.innerHTML = newPaginationHTML;
+								// No need to reattach individual listeners if delegation is used.
+							})
+							.catch(error => console.error('Error fetching paginated content:', error));
+					}
+				});
+			}
 		});
-	});
-
-	function attachPaginationListeners() {
-		const paginationLinks = document.querySelectorAll('.pagination-container a');
-		
-		paginationLinks.forEach(link => {
-			link.addEventListener("click", function(e) {
-				e.preventDefault();
-				const url = this.getAttribute("href");
-				console.log("Loading pagination via AJAX with URL:", url);
-				window.history.pushState(null, '', url);
-				fetch(url)
-					.then(response => response.text())
-					.then(data => {
-						const parser = new DOMParser();
-						const doc = parser.parseFromString(data, 'text/html');
-						const results = doc.getElementById('results').innerHTML;
-						document.getElementById('results').innerHTML = results;
-						const newPaginationHTML = doc.querySelector('.pagination-container').innerHTML;
-						document.querySelector('.pagination-container').innerHTML = newPaginationHTML;
-						// Continue reattaching listeners for updated content
-						attachPaginationListeners();
-					})
-					.catch(error => console.error('Error fetching paginated content:', error));
-			});
-		});
-	}
-
-	// Initially attach listeners
-	attachPaginationListeners();
 	</script>
 
 	<?php
