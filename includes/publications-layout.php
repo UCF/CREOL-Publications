@@ -71,10 +71,10 @@
 					<br>
 				</form>
 
-				<script>
+		<script>
 			document.addEventListener("DOMContentLoaded", function() {
 
-			// Define fetchPublications in this scope
+			// Define fetchPublications and updateURL in this same scope
 			function fetchPublications(page = 1) {
 				const url = new URL(window.location);
 				const params = new URLSearchParams(url.search);
@@ -91,6 +91,8 @@
 					document.getElementById('results').innerHTML = publications ? publications.innerHTML : '';
 					if (pagination) {
 					document.getElementById('pagination-container').innerHTML = pagination.innerHTML;
+					// Reattach listeners on newly rendered anchors.
+					attachPaginationListeners();
 					} else {
 					document.getElementById('pagination-container').innerHTML = '';
 					}
@@ -99,7 +101,13 @@
 				.catch(error => console.error('Error Fetching Publications:', error));
 			}
 
-			// Now loadPublications can reference fetchPublications
+			function updateURL(page = 1) {
+				const url = new URL(window.location);
+				const params = new URLSearchParams(url.search);
+				params.set('pg', page);
+				history.pushState(null, '', url.pathname + '?' + params.toString());
+			}
+
 			function loadPublications(e) {
 				if (e) { e.preventDefault(); }
 				const form = document.getElementById("publication-form");
@@ -110,7 +118,7 @@
 				fetchPublications(1);
 			}
 
-			// Attach event handlers
+			// Attach event handlers to the form:
 			const form = document.getElementById("publication-form");
 			form.addEventListener("change", loadPublications);
 			document.getElementById("search-button").addEventListener("click", loadPublications);
@@ -119,29 +127,21 @@
 				loadPublications();
 			});
 
-			// Delegated listener for pagination links (if needed)
-			const paginationContainer = document.getElementById('pagination-container');
-			if (paginationContainer) {
-				paginationContainer.addEventListener('click', function(event) {
-				const target = event.target;
-				if (target.tagName !== 'A' && target.parentNode && target.parentNode.tagName === 'A') {
-					target = target.parentNode;
-				}
-				if (target.tagName === 'A' && target.dataset.page) {
-					event.preventDefault();
-					const page = target.dataset.page;
+			// Attach listeners directly to each pagination anchor:
+			function attachPaginationListeners() {
+				const anchors = document.querySelectorAll("#pagination-container a");
+				anchors.forEach(function(anchor) {
+				anchor.addEventListener("click", function(e) {
+					e.preventDefault();
+					const page = anchor.dataset.page; // using the anchor's dataset page directly
 					updateURL(page);
 					fetchPublications(page);
-				}
+				});
 				});
 			}
 
-			function updateURL(page = 1) {
-				const url = new URL(window.location);
-				const params = new URLSearchParams(url.search);
-				params.set('pg', page);
-				history.pushState(null, '', url.pathname + '?' + params.toString());
-			}
+			// Initially attach listeners to any existing pagination links:
+			attachPaginationListeners();
 			});
 			</script>
 
