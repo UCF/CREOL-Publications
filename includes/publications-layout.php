@@ -1,21 +1,22 @@
 <?php
 /**
- * Handles the form and the output.
+ * Handles the layout for the publications.
+ * Handles query searches, filters data from API, and displays results.
  **/
- //  TODO:
- //  Make search button work.
 
- // Handles the dropdown on the left.
+ // Displays the form for query parameters and handles the logic for updating the results using AJAX.
  function publications_form_display( $atts = [], $content = null, $tag = '' ) {
 
 	$atts = array_change_key_case( (array) $atts, CASE_LOWER );
 
+	//Short code attributes
     $wporg_atts = shortcode_atts(
         array(
             'auth'  => '',
         ), $atts, $tag
     );
 
+	//Fetches lists for dropdown menus
 	$year_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/YearList' );
 	$type_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/TypeList' );
 	$pubAuth_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/AuthorList' );
@@ -71,10 +72,12 @@
 					<br>
 				</form>
 
+				
 				<script>
+					//Handles all of the logic for updating the results
 					document.addEventListener("DOMContentLoaded", function() {
 
-					// Define fetchPublications and updateURL in this same scope
+					// Fetches the publications based on the current page number and updates the results container.
 					function fetchPublications(page = 1) {
 						const url = new URL(window.location);
 						const params = new URLSearchParams(url.search);
@@ -91,7 +94,7 @@
 							document.getElementById('results').innerHTML = publications ? publications.innerHTML : '';
 							if (pagination) {
 							document.getElementById('pagination-container').innerHTML = pagination.innerHTML;
-							// Reattach listeners on newly rendered anchors.
+							// Attach listeners to each link.
 							attachPaginationListeners();
 							} else {
 							document.getElementById('pagination-container').innerHTML = '';
@@ -100,6 +103,7 @@
 						.catch(error => console.error('Error Fetching Publications:', error));
 					}
 
+					// Updates the URL without reloading the page when a pagination link is clicked.
 					function updateURL(page = 1) {
 						const url = new URL(window.location);
 						const params = new URLSearchParams(url.search);
@@ -107,6 +111,7 @@
 						history.pushState(null, '', url.pathname + '?' + params.toString());
 					}
 
+					// Loads the publications based on the current form parameters and calls fetchPublications.
 					function loadPublications(e) {
 						if (e) { e.preventDefault(); }
 						const form = document.getElementById("publication-form");
@@ -117,7 +122,7 @@
 						fetchPublications(1);
 					}
 
-					// Attach event handlers to the form:
+					// Prevents default behavior for the form 
 					const form = document.getElementById("publication-form");
 					form.addEventListener("change", loadPublications);
 					document.getElementById("search-button").addEventListener("click", loadPublications);
@@ -202,144 +207,147 @@
 }
 
 
-
-function publications_display( $year, $type, $pubAuth, $page, $search ) {
-	$url = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfo?pubyr=' . $year . '&pubType=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . $page . '&pubsearch=' . $search;
-	$publication_info_arr = get_json_nocache($url);
-	if (empty($publication_info_arr)) {
-		?>
-		<div class="container">
-			<div class="row">
-				<div class="col">
-					<p class="py-4">No results found. Try a different search.</p>
+	// Fetches parameters from the URL, displays the pagination, and displays the publications.
+	function publications_display( $year, $type, $pubAuth, $page, $search ) {
+		$url = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfo?pubyr=' . $year . '&pubType=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . $page . '&pubsearch=' . $search;
+		$publication_info_arr = get_json_nocache($url);
+		if (empty($publication_info_arr)) {
+			?>
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<p class="py-4">No results found. Try a different search.</p>
+					</div>
 				</div>
 			</div>
+			<?php
+			return;
+		}
+
+	
+		$countUrl = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfoCount?Yr=' . $year . '&Type=' . $type . '&Author=' . $pubAuth . '&pubsearch=' . $search;
+		$total_publications = get_plain_text($countUrl);
+
+		error_log(json_encode($publication_info_arr));
+
+		// Ensures at least one page and counts total pages.
+		$pageSize = 20;
+		if($total_publications == 0 || is_null($total_publications)) $totalPages = 1;
+		else $totalPages = ceil($total_publications / $pageSize);
+		?>
+
+		<br>
+		<div class="row float-right">
+			Found <?= $total_publications ?> publications.
 		</div>
+		<br>
+
 		<?php
-		return;
-	}
-	
-	
-	$countUrl = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfoCount?Yr=' . $year . '&Type=' . $type . '&Author=' . $pubAuth . '&pubsearch=' . $search;
-	$total_publications = get_plain_text($countUrl);
+		$range = 3;
+		echo '<div class="text-right" id="pagination-container">';
+		// Adds the first and left arrow.
+		if ($page > 1) {
+			echo '<a href="#" data-page="1" >First</a> ';
+			echo '<a href="#" data-page="' . ($page - 1) . '" ><i class="fa fa-caret-left" aria-hidden="true"></i></a> ';
+		} else {
+			echo '<span>First</span> ';
+			echo '<span><i class="fa fa-caret-left" aria-hidden="true"></i></span> ';
+		}
 
-	error_log(json_encode($publication_info_arr));
-
-	$pageSize = 20;
-	if($total_publications == 0 || is_null($total_publications)) $totalPages = 1;
-    else $totalPages = ceil($total_publications / $pageSize);
-	?>
-
-	<br>
-	<div class="row float-right">
-		Found <?= $total_publications ?> publications.
-	</div>
-	<br>
-
-	<?php
-	$range = 3;
-	echo '<div class="text-right" id="pagination-container">';
-	if ($page > 1) {
-		echo '<a href="#" data-page="1" >First</a> ';
-		echo '<a href="#" data-page="' . ($page - 1) . '" ><i class="fa fa-caret-left" aria-hidden="true"></i></a> ';
-	} else {
-		echo '<span>First</span> ';
-		echo '<span><i class="fa fa-caret-left" aria-hidden="true"></i></span> ';
-	}
-
-	for ($x = ($page - $range); $x < (($page + $range) + 1); $x++) {
-		if (($x > 0) && ($x <= $totalPages)) {
-			if ($x == $page) {
-				echo '<strong>' . $x . '</strong> ';
-			} else {
-				echo '<a href="#" data-page="' . $x . '" >' . $x . '</a> ';
+		// Displayes visible page numbers and the links attatched to them.
+		for ($x = ($page - $range); $x < (($page + $range) + 1); $x++) {
+			if (($x > 0) && ($x <= $totalPages)) {
+				if ($x == $page) {
+					echo '<strong>' . $x . '</strong> ';
+				} else {
+					echo '<a href="#" data-page="' . $x . '" >' . $x . '</a> ';
+				}
 			}
 		}
-	}
-
-	if ($page < $totalPages) {
-		echo '<a href="#" data-page="' . ($page + 1) . '" ><i class="fa fa-caret-right" aria-hidden="true"></i></a> ';
-		echo '<a href="#" data-page="' . $totalPages . '" >Last</a> ';
-	} else {
-		echo '<span><i class="fa fa-caret-right" aria-hidden="true"></i></span> ';
-		echo '<span>Last</span>';
-	}
-	echo '</div>';
-	?>
-	<script>
-		var publications = <?= json_encode($publication_info_arr); ?>;
-		var count = publications.length;
-		// document.getElementById('publicationCount').textContent = count;
-	</script>
-	<?php
-	$currentType = -1;
-	foreach ( $publication_info_arr as $curr ) {
+		// Adds the right arrow and last page link.
+		if ($page < $totalPages) {
+			echo '<a href="#" data-page="' . ($page + 1) . '" ><i class="fa fa-caret-right" aria-hidden="true"></i></a> ';
+			echo '<a href="#" data-page="' . $totalPages . '" >Last</a> ';
+		} else {
+			echo '<span><i class="fa fa-caret-right" aria-hidden="true"></i></span> ';
+			echo '<span>Last</span>';
+		}
+		echo '</div>';
 		?>
-		<div class="px-2 pb-3 container">
-			<?php if ( $curr->PublicationType != $currentType ) {
-				?>
-				<div class="row font-weight-bold">
-					<?= pub_type($curr->PublicationType) ?>
-				</div>
-				<?php
-				$currentType = $curr->PublicationType;
-			}?>
-			<div class="row">
-				<div class="col-xs">
-					<span class="h-5 font-weight-bold letter-spacing-1">
-						<?= $curr->PublicationYear ?>
-					</span>
-				</div>
-				<div class="col-sm">
-					<?= $curr->Authors ?>.
-					<span class="fw-italic">
-					"<?= $curr->Title ?>".
-					</span>
-					<?= $curr->Reference ?>
-					<?php if (isset($curr->PDFLink) && $curr->PDFLink != '') : ?>
-						<a href="<?= $curr->PDFLink ?>" target="_blank"><i class="fa fa-file-pdf-o"></i></a>
-					<?php endif; ?>
-					<?php if (isset($curr->Link) && $curr->Link != '') : ?>
-						<a href="<?= $curr->Link ?>" target="_blank"><i class="fa fa-external-link"></i></a>
-					<?php endif; ?>
-					<?php if (isset($curr->DOI) && $curr->DOI != '' && isset($curr->DOIVisble)) : ?>
-						<a href="<?= $curr->DOI ?>" target="_blank"><i class="fa fa-external-link"></i></a>
-					<?php endif; ?>
+		<script>
+			var publications = <?= json_encode($publication_info_arr); ?>;
+			var count = publications.length;
+			// document.getElementById('publicationCount').textContent = count;
+		</script>
+		<?php
+		$currentType = -1;
+		foreach ( $publication_info_arr as $curr ) {
+			?>
+			<div class="px-2 pb-3 container">
+				<?php if ( $curr->PublicationType != $currentType ) {
+					?>
+					<div class="row font-weight-bold">
+						<?= pub_type($curr->PublicationType) ?>
+					</div>
+					<?php
+					$currentType = $curr->PublicationType;
+				}?>
+				<div class="row">
+					<div class="col-xs">
+						<span class="h-5 font-weight-bold letter-spacing-1">
+							<?= $curr->PublicationYear ?>
+						</span>
+					</div>
+					<div class="col-sm">
+						<?= $curr->Authors ?>.
+						<span class="fw-italic">
+						"<?= $curr->Title ?>".
+						</span>
+						<?= $curr->Reference ?>
+						<?php if (isset($curr->PDFLink) && $curr->PDFLink != '') : ?>
+							<a href="<?= $curr->PDFLink ?>" target="_blank"><i class="fa fa-file-pdf-o"></i></a>
+						<?php endif; ?>
+						<?php if (isset($curr->Link) && $curr->Link != '') : ?>
+							<a href="<?= $curr->Link ?>" target="_blank"><i class="fa fa-external-link"></i></a>
+						<?php endif; ?>
+						<?php if (isset($curr->DOI) && $curr->DOI != '' && isset($curr->DOIVisble)) : ?>
+							<a href="<?= $curr->DOI ?>" target="_blank"><i class="fa fa-external-link"></i></a>
+						<?php endif; ?>
+					</div>
 				</div>
 			</div>
-		</div>
-			
-		<?php
-	}
-	
-	$range = 3;
-	echo '<div class="text-right" id="pagination-container">';
-	if ($page > 1) {
-		echo '<a href="#" data-page="1" >First</a> ';
-		echo '<a href="#" data-page="' . ($page - 1) . '" ><i class="fa fa-caret-left" aria-hidden="true"></i></a> ';
-	} else {
-		echo '<span>First</span> ';
-		echo '<span><i class="fa fa-caret-left" aria-hidden="true"></i></span> ';
-	}
+				
+			<?php
+		}
+		
+		$range = 3;
+		echo '<div class="text-right" id="pagination-container">';
+		if ($page > 1) {
+			echo '<a href="#" data-page="1" >First</a> ';
+			echo '<a href="#" data-page="' . ($page - 1) . '" ><i class="fa fa-caret-left" aria-hidden="true"></i></a> ';
+		} else {
+			echo '<span>First</span> ';
+			echo '<span><i class="fa fa-caret-left" aria-hidden="true"></i></span> ';
+		}
 
-	for ($x = ($page - $range); $x < (($page + $range) + 1); $x++) {
-		if (($x > 0) && ($x <= $totalPages)) {
-			if ($x == $page) {
-				echo '<strong>' . $x . '</strong> ';
-			} else {
-				echo '<a href="#" data-page="' . $x . '" >' . $x . '</a> ';
+		for ($x = ($page - $range); $x < (($page + $range) + 1); $x++) {
+			if (($x > 0) && ($x <= $totalPages)) {
+				if ($x == $page) {
+					echo '<strong>' . $x . '</strong> ';
+				} else {
+					echo '<a href="#" data-page="' . $x . '" >' . $x . '</a> ';
+				}
 			}
 		}
-	}
 
-	if ($page < $totalPages) {
-		echo '<a href="#" data-page="' . ($page + 1) . '" ><i class="fa fa-caret-right" aria-hidden="true"></i></a> ';
-		echo '<a href="#" data-page="' . $totalPages . '" >Last</a> ';
-	} else {
-		echo '<span><i class="fa fa-caret-right" aria-hidden="true"></i></span> ';
-		echo '<span>Last</span>';
-	}
-	echo '</div>';
-	echo '<br>';
-	echo '<br>';
+		if ($page < $totalPages) {
+			echo '<a href="#" data-page="' . ($page + 1) . '" ><i class="fa fa-caret-right" aria-hidden="true"></i></a> ';
+			echo '<a href="#" data-page="' . $totalPages . '" >Last</a> ';
+		} else {
+			echo '<span><i class="fa fa-caret-right" aria-hidden="true"></i></span> ';
+			echo '<span>Last</span>';
+		}
+		echo '</div>';
+		echo '<br>';
+		echo '<br>';
 }
