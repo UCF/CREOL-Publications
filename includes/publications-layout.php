@@ -190,8 +190,8 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 	$range = 3;
 	echo '<div class="text-right" id="pagination-container">';
 	if ($page > 1) {
-		echo '<a href="#" data-page="1" > First </a>';
-		echo '<a href="#" data-page="' . ($page - 1) . '" ><i class="fa fa-caret-left" aria-hidden="true"></i></a>';
+		echo '<a href="#" data-page="1" >First</a> ';
+		echo '<a href="#" data-page="' . ($page - 1) . '" ><i class="fa fa-caret-left" aria-hidden="true"></i></a> ';
 	} else {
 		echo '<span>First</span> ';
 		echo '<span><i class="fa fa-caret-left" aria-hidden="true"></i></span> ';
@@ -202,14 +202,14 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 			if ($x == $page) {
 				echo '<strong>' . $x . '</strong> ';
 			} else {
-				echo '<a href="#" data-page="' . $x . '" >' . $x . '</a>';
+				echo '<a href="#" data-page="' . $x . '" >' . $x . '</a> ';
 			}
 		}
 	}
 
 	if ($page < $totalPages) {
-		echo '<a href="#" data-page="' . $totalPages . '" > Last </a>';
-		echo '<a href="#" data-page="' . ($page + 1) . '" ><i class="fa fa-caret-right" aria-hidden="true"></i></a>';
+		echo '<a href="#" data-page="' . $totalPages . '" >Last</a> ';
+		echo '<a href="#" data-page="' . ($page + 1) . '" ><i class="fa fa-caret-right" aria-hidden="true"></i></a> ';
 	} else {
 		echo '<span><i class="fa fa-caret-right" aria-hidden="true"></i></span> ';
 		echo '<span>Last</span>';
@@ -265,8 +265,8 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 	$range = 3;
 	echo '<div class="text-right" id="pagination-container">';
 	if ($page > 1) {
-		echo '<a href="#" data-page="1" > First </a>';
-		echo '<a href="#" data-page="' . ($page - 1) . '" ><i class="fa fa-caret-left" aria-hidden="true"></i></a>';
+		echo '<a href="#" data-page="1" >First</a> ';
+		echo '<a href="#" data-page="' . ($page - 1) . '" ><i class="fa fa-caret-left" aria-hidden="true"></i></a> ';
 	} else {
 		echo '<span>First</span> ';
 		echo '<span><i class="fa fa-caret-left" aria-hidden="true"></i></span> ';
@@ -277,14 +277,14 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 			if ($x == $page) {
 				echo '<strong>' . $x . '</strong> ';
 			} else {
-				echo '<a href="#" data-page="' . $x . '" >' . $x . '</a>';
+				echo '<a href="#" data-page="' . $x . '" >' . $x . '</a> ';
 			}
 		}
 	}
 
 	if ($page < $totalPages) {
-		echo '<a href="#" data-page="' . $totalPages . '" > Last </a>';
-		echo '<a href="#" data-page="' . ($page + 1) . '" ><i class="fa fa-caret-right" aria-hidden="true"></i></a>';
+		echo '<a href="#" data-page="' . $totalPages . '" >Last</a> ';
+		echo '<a href="#" data-page="' . ($page + 1) . '" ><i class="fa fa-caret-right" aria-hidden="true"></i></a> ';
 	} else {
 		echo '<span><i class="fa fa-caret-right" aria-hidden="true"></i></span> ';
 		echo '<span>Last</span>';
