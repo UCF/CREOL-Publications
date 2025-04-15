@@ -72,6 +72,27 @@
 				</form>
 
 		<script>
+
+			function initializePagination() {
+			// Attach form event listeners and pagination listeners
+			const form = document.getElementById("publication-form");
+			if (form) {
+				form.addEventListener("change", loadPublications);
+				document.getElementById("search-button").addEventListener("click", loadPublications);
+				form.addEventListener("submit", function(e) {
+				e.preventDefault();
+				loadPublications();
+				});
+			}
+			attachPaginationListeners();
+			}
+
+			if (document.readyState !== "loading") {
+			initializePagination();
+			} else {
+			document.addEventListener("DOMContentLoaded", initializePagination);
+			}
+			
 			document.addEventListener("DOMContentLoaded", function() {
 
 			// Define fetchPublications and updateURL in this same scope
