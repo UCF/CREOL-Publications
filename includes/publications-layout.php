@@ -72,35 +72,75 @@
 				</form>
 
 				<script>
-					 // When the form fields change or search button is clicked, use AJAX to reload plugin content.
-					document.addEventListener("DOMContentLoaded", function() {
-					const form = document.getElementById("publication-form");
+			document.addEventListener("DOMContentLoaded", function() {
 
-					// When any form field (or the search button) is changed, trigger loadPublications.
-					form.addEventListener("change", loadPublications);
-					document.getElementById("search-button").addEventListener("click", loadPublications);
-					
-					// Prevent traditional form submission as fallback.
-					form.addEventListener("submit", function(e){
-					e.preventDefault();
-					loadPublications();
-					});
-				});
+			// Define fetchPublications in this scope
+			function fetchPublications(page = 1) {
+				const url = new URL(window.location);
+				const params = new URLSearchParams(url.search);
+				params.set('pg', page);
+				url.search = params.toString();
+				const decodedUrl = decodeURIComponent(url.toString());
+				fetch(decodedUrl)
+				.then(response => response.text())
+				.then(data => {
+					const parser = new DOMParser();
+					const doc = parser.parseFromString(data, 'text/html');
+					const publications = doc.getElementById('results');
+					const pagination = doc.getElementById('pagination-container');
+					document.getElementById('results').innerHTML = publications ? publications.innerHTML : '';
+					if (pagination) {
+					document.getElementById('pagination-container').innerHTML = pagination.innerHTML;
+					} else {
+					document.getElementById('pagination-container').innerHTML = '';
+					}
+					history.pushState(null, '', decodedUrl);
+				})
+				.catch(error => console.error('Error Fetching Publications:', error));
+			}
 
-				// Read form inputs, update query string (reset page to 1) and call fetchProjects.
-				function loadPublications(e) {
-					if (e) { e.preventDefault(); }
-					const form = document.getElementById("publication-form");
-					const formData = new FormData(form);
-					// Always reset page to 1 when changing a form input
-					formData.set('pg', 1);
-					const params = new URLSearchParams(formData);
-					// Update the URL so that all parameters including pubyr, type, pubAuth, search, and pg are in the address bar
-					history.pushState(null, '', window.location.pathname + '?' + params.toString());
-					// Now call fetchProjects on page 1
-					fetchProjects(1);
+			// Now loadPublications can reference fetchPublications
+			function loadPublications(e) {
+				if (e) { e.preventDefault(); }
+				const form = document.getElementById("publication-form");
+				const formData = new FormData(form);
+				formData.set('pg', 1);
+				const params = new URLSearchParams(formData);
+				history.pushState(null, '', window.location.pathname + '?' + params.toString());
+				fetchPublications(1);
+			}
+
+			// Attach event handlers
+			const form = document.getElementById("publication-form");
+			form.addEventListener("change", loadPublications);
+			document.getElementById("search-button").addEventListener("click", loadPublications);
+			form.addEventListener("submit", function(e) {
+				e.preventDefault();
+				loadPublications();
+			});
+
+			// Delegated listener for pagination links (if needed)
+			const paginationContainer = document.getElementById('pagination-container');
+			if (paginationContainer) {
+				paginationContainer.addEventListener('click', function(event) {
+				const target = event.target;
+				if (target.tagName === 'A' && target.dataset.page) {
+					event.preventDefault();
+					const page = target.dataset.page;
+					updateURL(page);
+					fetchPublications(page);
 				}
-				</script>
+				});
+			}
+
+			function updateURL(page = 1) {
+				const url = new URL(window.location);
+				const params = new URLSearchParams(url.search);
+				params.set('pg', page);
+				history.pushState(null, '', url.pathname + '?' + params.toString());
+			}
+			});
+			</script>
 
 			<!-- Results Container -->
 			<div class="col mt-lg-0 mt-5">
@@ -208,8 +248,8 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 	}
 
 	if ($page < $totalPages) {
-		echo '<a href="#" data-page="' . $totalPages . '" >Last</a> ';
 		echo '<a href="#" data-page="' . ($page + 1) . '" ><i class="fa fa-caret-right" aria-hidden="true"></i></a> ';
+		echo '<a href="#" data-page="' . $totalPages . '" >Last</a> ';
 	} else {
 		echo '<span><i class="fa fa-caret-right" aria-hidden="true"></i></span> ';
 		echo '<span>Last</span>';
@@ -283,8 +323,8 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 	}
 
 	if ($page < $totalPages) {
-		echo '<a href="#" data-page="' . $totalPages . '" >Last</a> ';
 		echo '<a href="#" data-page="' . ($page + 1) . '" ><i class="fa fa-caret-right" aria-hidden="true"></i></a> ';
+		echo '<a href="#" data-page="' . $totalPages . '" >Last</a> ';
 	} else {
 		echo '<span><i class="fa fa-caret-right" aria-hidden="true"></i></span> ';
 		echo '<span>Last</span>';
@@ -292,55 +332,4 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 	echo '</div>';
 	echo '<br>';
 	echo '<br>';
-	?>
-
-	<script>
-		document.addEventListener("DOMContentLoaded", function() {
-			const paginationContainer = document.getElementById('pagination-container');
-
-			if (paginationContainer) {
-            paginationContainer.addEventListener('click', function(event) {
-                const target = event.target;
-                if (target.tagName === 'A' && target.dataset.page) {
-                    event.preventDefault();
-                    const page = target.dataset.page;
-                    updateURL(page);
-                    fetchProjects(page);
-                }
-            });
-        }
-
-		function updateURL(page = 1) {
-            const url = new URL(window.location);
-            const params = new URLSearchParams(url.search);
-			params.set('pg', page);
-            history.pushState(null, '', url.pathname + '?' + params.toString());
-        }
-        function fetchProjects(page = 1) {
-            const url = new URL(window.location);
-            const params = new URLSearchParams(url.search);
-            params.set('pg', page);
-            url.search = params.toString();
-            const decodedUrl = decodeURIComponent(url.toString());
-            fetch(decodedUrl)
-            .then(response => response.text())
-            .then(data => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(data, 'text/html');
-                const publications = doc.getElementById('results');
-                const pagination = doc.getElementById('pagination-container');
-                document.getElementById('results').innerHTML = publications.innerHTML;
-                if (pagination) {
-                    document.getElementById('pagination-container').innerHTML = pagination.innerHTML;
-                } else {
-                    document.getElementById('pagination-container').innerHTML = '';
-                }
-                history.pushState(null, '', decodedUrl);
-            })
-            .catch(error => console.error('Error Fetching Publications:', error));
-        }
-		});
-	</script>
-
-	<?php
 }
