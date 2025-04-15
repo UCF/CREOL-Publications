@@ -72,87 +72,34 @@
 				</form>
 
 				<script>
-					let form = document.getElementById("publication-form");
-					let elements = form.elements;
+					 // When the form fields change or search button is clicked, use AJAX to reload plugin content.
+					document.addEventListener("DOMContentLoaded", function() {
+					const form = document.getElementById("publication-form");
 
-					function loadPublications(e) {
-						if(e) {
-							e.preventDefault();
-						}
-
-						// reset page to 1 on selector change
-						document.getElementById('pg').value = 1;
-
-						// disable the form fields for visual feedback
-						for (let i = 0, len = elements.length; i < len; ++i) {
-							elements[i].style.pointerEvents = "none";
-							elements[i].onclick = () => false;
-							elements[i].onkeydown = () => false;
-							elements[i].style.backgroundColor = "#f0f0f0";
-							elements[i].style.color = "#6c757d";
-							elements[i].style.border = "1px solid #ced4da";
-						}
-
-						// build query parameters from the form fields
-						let formData = new FormData(form);
-						let params = new URLSearchParams(formData);
-
-						// fetch publications results
-						const url = new URL(window.location);
-						url.search = params.toString();
-						 // update the browser URL without reloading the page
-   						 window.history.replaceState(null, "", url.toString());
-						fetch(url.toString())
-							.then(response => response.text())
-							.then(data => {
-								const parser = new DOMParser();
-								const doc = parser.parseFromString(data, 'text/html');
-								const results = doc.getElementById('results');
-								document.getElementById('results').innerHTML = results.innerHTML;
-								// re-enable the form fields after results are loaded
-								for (let i = 0, len = elements.length; i < len; ++i) {
-									elements[i].style.pointerEvents = "auto";
-									elements[i].onclick = () => true;
-									elements[i].onkeydown = () => true;
-									elements[i].style.backgroundColor = "";
-									elements[i].style.color = "";
-									elements[i].style.border = "";
-								}
-							})
-							.catch(error => console.error('Error:', error));
-
-
-					}
-
-				document.addEventListener("click", function(e) {
-				// Check if the clicked element is inside a pagination container's anchor
-				let link = e.target;
-				// Traverse upward if needed
-				while (link && link !== document && !link.matches('.pagination-container a')) {
-					link = link.parentElement;
-				}
-				if (link && link.matches('.pagination-container a')) {
+					// When any form field (or the search button) is changed, trigger loadPublications.
+					form.addEventListener("change", loadPublications);
+					document.getElementById("search-button").addEventListener("click", loadPublications);
+					
+					// Prevent traditional form submission as fallback.
+					form.addEventListener("submit", function(e){
 					e.preventDefault();
-					const url = link.getAttribute("href");
-					console.log("Loading pagination via AJAX with URL:", url);
-					window.history.pushState(null, '', url);
-					fetch(url)
-						.then(response => response.text())
-						.then(data => {
-							const parser = new DOMParser();
-							const doc = parser.parseFromString(data, 'text/html');
-							const results = doc.getElementById('results').innerHTML;
-							document.getElementById('results').innerHTML = results;
-							// Update pagination container HTML
-							const newPaginationHTML = doc.querySelector('.pagination-container').innerHTML;
-							const paginationContainer = document.querySelector('.pagination-container');
-							if (paginationContainer) {
-							paginationContainer.innerHTML = newPaginationHTML;
-							}
-						})
-						.catch(error => console.error('Error fetching paginated content:', error));
+					loadPublications();
+					});
+				});
+
+				// Read form inputs, update query string (reset page to 1) and call fetchProjects.
+				function loadPublications(e) {
+					if (e) { e.preventDefault(); }
+					const form = document.getElementById("publication-form");
+					const formData = new FormData(form);
+					// Always reset page to 1 when changing a form input
+					formData.set('pg', 1);
+					const params = new URLSearchParams(formData);
+					// Update the URL so that all parameters including pubyr, type, pubAuth, search, and pg are in the address bar
+					history.pushState(null, '', window.location.pathname + '?' + params.toString());
+					// Now call fetchProjects on page 1
+					fetchProjects(1);
 				}
-			});
 				</script>
 
 			<!-- Results Container -->
@@ -241,10 +188,10 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 
 	<?php
 	$range = 3;
-	echo '<div class="text-right pagination-container">';
+	echo '<div class="text-right" id="pagination-container">';
 	if ($page > 1) {
-		echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=1&search=' . $search . '">First</a> ';
-		echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . ($page - 1) . '&search=' . $search . '"><i class="fa fa-caret-left" aria-hidden="true"></i></a> ';
+		echo '<a href="#" data-page="1" > First </a>';
+		echo '<a href="#" data-page="' . ($page - 1) . '" ><i class="fa fa-caret-left" aria-hidden="true"></i></a>';
 	} else {
 		echo '<span>First</span> ';
 		echo '<span><i class="fa fa-caret-left" aria-hidden="true"></i></span> ';
@@ -255,14 +202,14 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 			if ($x == $page) {
 				echo '<strong>' . $x . '</strong> ';
 			} else {
-				echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . $x . '&search=' . $search . '">' . $x . '</a> ';
+				echo '<a href="#" data-page="' . $x . '" >' . $x . '</a>';
 			}
 		}
 	}
 
 	if ($page < $totalPages) {
-		echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . ($page + 1) . '&search=' . $search . '"><i class="fa fa-caret-right" aria-hidden="true"></i></a> ';
-		echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . $totalPages . '&search=' . $search . '">Last</a>';
+		echo '<a href="#" data-page="' . $totalPages . '" > Last </a>';
+		echo '<a href="#" data-page="' . ($page + 1) . '" ><i class="fa fa-caret-right" aria-hidden="true"></i></a>';
 	} else {
 		echo '<span><i class="fa fa-caret-right" aria-hidden="true"></i></span> ';
 		echo '<span>Last</span>';
@@ -316,10 +263,10 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 	}
 	
 	$range = 3;
-	echo '<div class="text-right pagination-container">';
+	echo '<div class="text-right" id="pagination-container">';
 	if ($page > 1) {
-		echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=1&search=' . $search . '">First</a> ';
-		echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . ($page - 1) . '&search=' . $search . '"><i class="fa fa-caret-left" aria-hidden="true"></i></a> ';
+		echo '<a href="#" data-page="1" > First </a>';
+		echo '<a href="#" data-page="' . ($page - 1) . '" ><i class="fa fa-caret-left" aria-hidden="true"></i></a>';
 	} else {
 		echo '<span>First</span> ';
 		echo '<span><i class="fa fa-caret-left" aria-hidden="true"></i></span> ';
@@ -330,14 +277,14 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 			if ($x == $page) {
 				echo '<strong>' . $x . '</strong> ';
 			} else {
-				echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . $x . '&search=' . $search . '">' . $x . '</a> ';
+				echo '<a href="#" data-page="' . $x . '" >' . $x . '</a>';
 			}
 		}
 	}
 
 	if ($page < $totalPages) {
-		echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . ($page + 1) . '&search=' . $search . '"><i class="fa fa-caret-right" aria-hidden="true"></i></a> ';
-		echo '<a href="?pubyr=' . $year . '&type=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . $totalPages . '&search=' . $search . '">Last</a>';
+		echo '<a href="#" data-page="' . $totalPages . '" > Last </a>';
+		echo '<a href="#" data-page="' . ($page + 1) . '" ><i class="fa fa-caret-right" aria-hidden="true"></i></a>';
 	} else {
 		echo '<span><i class="fa fa-caret-right" aria-hidden="true"></i></span> ';
 		echo '<span>Last</span>';
@@ -349,37 +296,49 @@ function publications_display( $year, $type, $pubAuth, $page, $search ) {
 
 	<script>
 		document.addEventListener("DOMContentLoaded", function() {
-			const paginationContainer = document.querySelector('.pagination-container');
+			const paginationContainer = document.getElementById('pagination-container');
 
 			if (paginationContainer) {
-				paginationContainer.addEventListener("click", function(e) {
-					// Check if an anchor tag was clicked
-					let link = e.target;
-					// If an inner element was clicked (like an <i> icon), traverse up until the <a> is found:
-					while (link && link.tagName !== "A") {
-						link = link.parentElement;
-					}
-					if (link && link.tagName === "A") {
-						e.preventDefault();
-						const url = link.getAttribute("href");
-						console.log("Loading pagination via AJAX with URL:", url);
-						window.history.pushState(null, '', url);
-						fetch(url)
-							.then(response => response.text())
-							.then(data => {
-								const parser = new DOMParser();
-								const doc = parser.parseFromString(data, 'text/html');
-								const results = doc.getElementById('results').innerHTML;
-								document.getElementById('results').innerHTML = results;
-								// Update pagination container HTML
-								const newPaginationHTML = doc.querySelector('.pagination-container').innerHTML;
-								paginationContainer.innerHTML = newPaginationHTML;
-								// No need to reattach individual listeners if delegation is used.
-							})
-							.catch(error => console.error('Error fetching paginated content:', error));
-					}
-				});
-			}
+            paginationContainer.addEventListener('click', function(event) {
+                const target = event.target;
+                if (target.tagName === 'A' && target.dataset.page) {
+                    event.preventDefault();
+                    const page = target.dataset.page;
+                    updateURL(page);
+                    fetchProjects(page);
+                }
+            });
+        }
+
+		function updateURL(page = 1) {
+            const url = new URL(window.location);
+            const params = new URLSearchParams(url.search);
+			params.set('pg', page);
+            history.pushState(null, '', url.pathname + '?' + params.toString());
+        }
+        function fetchProjects(page = 1) {
+            const url = new URL(window.location);
+            const params = new URLSearchParams(url.search);
+            params.set('pg', page);
+            url.search = params.toString();
+            const decodedUrl = decodeURIComponent(url.toString());
+            fetch(decodedUrl)
+            .then(response => response.text())
+            .then(data => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data, 'text/html');
+                const publications = doc.getElementById('results');
+                const pagination = doc.getElementById('pagination-container');
+                document.getElementById('results').innerHTML = publications.innerHTML;
+                if (pagination) {
+                    document.getElementById('pagination-container').innerHTML = pagination.innerHTML;
+                } else {
+                    document.getElementById('pagination-container').innerHTML = '';
+                }
+                history.pushState(null, '', decodedUrl);
+            })
+            .catch(error => console.error('Error Fetching Publications:', error));
+        }
 		});
 	</script>
 
