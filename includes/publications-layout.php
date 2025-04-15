@@ -124,6 +124,9 @@
 			if (paginationContainer) {
 				paginationContainer.addEventListener('click', function(event) {
 				const target = event.target;
+				if (target.tagName !== 'A' && target.parentNode && target.parentNode.tagName === 'A') {
+					target = target.parentNode;
+				}
 				if (target.tagName === 'A' && target.dataset.page) {
 					event.preventDefault();
 					const page = target.dataset.page;
