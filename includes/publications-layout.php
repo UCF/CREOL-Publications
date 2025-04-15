@@ -124,23 +124,35 @@
 
 					}
 
-					document.addEventListener("DOMContentLoaded", function() {
-						const form = document.getElementById("publication-form");
-						
-						// Attach change events for your dropdowns
-						form.querySelectorAll("select").forEach(select => {
-							select.addEventListener("change", loadPublications);
-						});
-						
-						// Attach click event for search button
-						document.querySelector("button.btn-primary").addEventListener("click", loadPublications);
-						
-						// Prevent form submission and rely on AJAX
-						form.addEventListener("submit", function(e) {
-							e.preventDefault();
-							loadPublications(e);
-						});
-					});
+				document.addEventListener("click", function(e) {
+				// Check if the clicked element is inside a pagination container's anchor
+				let link = e.target;
+				// Traverse upward if needed
+				while (link && link !== document && !link.matches('.pagination-container a')) {
+					link = link.parentElement;
+				}
+				if (link && link.matches('.pagination-container a')) {
+					e.preventDefault();
+					const url = link.getAttribute("href");
+					console.log("Loading pagination via AJAX with URL:", url);
+					window.history.pushState(null, '', url);
+					fetch(url)
+						.then(response => response.text())
+						.then(data => {
+							const parser = new DOMParser();
+							const doc = parser.parseFromString(data, 'text/html');
+							const results = doc.getElementById('results').innerHTML;
+							document.getElementById('results').innerHTML = results;
+							// Update pagination container HTML
+							const newPaginationHTML = doc.querySelector('.pagination-container').innerHTML;
+							const paginationContainer = document.querySelector('.pagination-container');
+							if (paginationContainer) {
+							paginationContainer.innerHTML = newPaginationHTML;
+							}
+						})
+						.catch(error => console.error('Error fetching paginated content:', error));
+				}
+			});
 				</script>
 
 			<!-- Results Container -->
