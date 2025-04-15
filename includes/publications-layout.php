@@ -126,6 +126,14 @@
 						loadPublications();
 					});
 
+					// Prevent enter key on the search input from submitting the form.
+					document.getElementById("search").addEventListener("keydown", function(e) {
+						if (e.key === "Enter") {
+							e.preventDefault();
+							loadPublications();
+						}
+					});
+
 					// Attach listeners directly to each pagination anchor:
 					function attachPaginationListeners() {
 						const anchors = document.querySelectorAll("#pagination-container a");
