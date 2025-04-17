@@ -60,6 +60,7 @@
 					</div>
 
 					<input type="hidden" name="pg" id="pg" value="<?php echo isset($_GET['pg']) ? $_GET['pg'] : 1; ?>">
+
 					
 					<div class="col-xs-12 col-sm-6 col-md-6 form-group">
 						<div class="input-group" style="width: 100%;">
@@ -74,8 +75,25 @@
 
 				
 				<script>
-					//Handles all of the logic for updating the results
+				// Handles all of the logic for updating the results
+				document.addEventListener("DOMContentLoaded", function() {
+					// Get the default auth from the shortcode attribute or fallback to ALL_AUTHORS.
+					const defaultAuth = "<?php echo !empty($wporg_atts['auth']) ? $wporg_atts['auth'] : ALL_AUTHORS; ?>";
+					const url = new URL(window.location);
+					const params = new URLSearchParams(url.search);
+
+					// If 'pubAuth' is missing or set to "0", update the URL and the form field.
+					if (!params.get('pubAuth') || params.get('pubAuth') === "0") {
+						params.set('pubAuth', defaultAuth);
+						history.replaceState(null, '', url.pathname + '?' + params.toString());
+						document.getElementById("pubAuth").value = defaultAuth;
+					}
+					});
+				</script>
+
+					<script>
 					document.addEventListener("DOMContentLoaded", function() {
+						
 
 					// Fetches the publications based on the current page number and updates the results container.
 					function fetchPublications(page = 1) {
@@ -178,14 +196,11 @@
 				<?php
 				if( $isDefault) {
 					$authorToUse = $isDefault && !empty($wporg_atts['auth']) ? $wporg_atts['auth'] : $pubAuth;
+		 
+						publications_display($pubyr, $type, $authorToUse, $page, $search);
 					?>
 					<script>
 					document.getElementById("pubAuth").value = <?php echo $authorToUse ?>;
-					publications_display($pubyr, $type, $authorToUse, $page, $search);
-					const url = new URL(window.location);
-					const params = new URLSearchParams(url.search);
-					params.set('pubAuth', $pubAuth);
-					history.pushState(null, '', url.pathname + '?' + params.toString());
 					</script>
 					<?php
 				}
