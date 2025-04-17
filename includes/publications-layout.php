@@ -178,15 +178,14 @@
 				<?php
 				if( $isDefault) {
 					$authorToUse = $isDefault && !empty($wporg_atts['auth']) ? $wporg_atts['auth'] : $pubAuth;
-		 
-						publications_display($pubyr, $type, $authorToUse, $page, $search);
-						const url = new URL(window.location);
-						const params = new URLSearchParams(url.search);
-						params.set('pubAuth', $pubAuth);
-						history.pushState(null, '', url.pathname + '?' + params.toString());
 					?>
 					<script>
 					document.getElementById("pubAuth").value = <?php echo $authorToUse ?>;
+					publications_display($pubyr, $type, $authorToUse, $page, $search);
+					const url = new URL(window.location);
+					const params = new URLSearchParams(url.search);
+					params.set('pubAuth', $pubAuth);
+					history.pushState(null, '', url.pathname + '?' + params.toString());
 					</script>
 					<?php
 				}
