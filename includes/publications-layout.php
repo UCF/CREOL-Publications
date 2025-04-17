@@ -60,7 +60,6 @@
 					</div>
 
 					<input type="hidden" name="pg" id="pg" value="<?php echo isset($_GET['pg']) ? $_GET['pg'] : 1; ?>">
-					<input type="hidden" name="auth" id="auth" value="<?php echo !empty($wporg_atts['auth']) ? $wporg_atts['auth'] : ''; ?>">
 					
 					<div class="col-xs-12 col-sm-6 col-md-6 form-group">
 						<div class="input-group" style="width: 100%;">
@@ -181,6 +180,10 @@
 					$authorToUse = $isDefault && !empty($wporg_atts['auth']) ? $wporg_atts['auth'] : $pubAuth;
 		 
 						publications_display($pubyr, $type, $authorToUse, $page, $search);
+						const url = new URL(window.location);
+						const params = new URLSearchParams(url.search);
+						params.set('pubAuth', $pubAuth);
+						history.pushState(null, '', url.pathname + '?' + params.toString());
 					?>
 					<script>
 					document.getElementById("pubAuth").value = <?php echo $authorToUse ?>;
