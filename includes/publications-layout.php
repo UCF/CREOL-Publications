@@ -4,17 +4,31 @@
  * Handles query searches, filters data from API, and displays results.
  **/
 
- // Displays the form for query parameters and handles the logic for updating the results using AJAX.
- function publications_form_display( $atts = [], $content = null, $tag = '' ) {
+
+	// Register custom query variables for filtering
+	// Without this, the query variables won't be accessible on a page set as the Homepage
+	function register_publications_query_vars( $vars ) {
+		// Ensure these vars show up in $wp_query->query_vars.
+		$vars[] = 'pubyr';
+		$vars[] = 'type';
+		$vars[] = 'pubAuth';
+		$vars[] = 'pg';
+		$vars[] = 'search';
+		return $vars;
+	}
+	add_filter('query_vars', 'register_publications_query_vars');
+
+	// Displays the form for query parameters and handles the logic for updating the results using AJAX.
+	function publications_form_display( $atts = [], $content = null, $tag = '' ) {
 
 	$atts = array_change_key_case( (array) $atts, CASE_LOWER );
 
 	//Short code attributes
-    $wporg_atts = shortcode_atts(
-        array(
-            'auth'  => '',
-        ), $atts, $tag
-    );
+	$wporg_atts = shortcode_atts(
+		array(
+			'auth'  => '',
+		), $atts, $tag
+	);
 
 	//Fetches lists for dropdown menus
 	$year_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/YearList' );
@@ -196,7 +210,7 @@
 				<?php
 				if( $isDefault) {
 					$authorToUse = $isDefault && !empty($wporg_atts['auth']) ? $wporg_atts['auth'] : $pubAuth;
-		 
+			
 						publications_display($pubyr, $type, $authorToUse, $page, $search);
 					?>
 					<script>
@@ -222,7 +236,7 @@
 	</div>
 	<?php
 	return ob_get_clean();
-}
+	}
 
 
 	// Fetches parameters from the URL, displays the pagination, and displays the publications.
