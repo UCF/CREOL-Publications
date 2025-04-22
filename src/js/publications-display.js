@@ -12,9 +12,10 @@
             params.set('pubAuth', defaultAuth);
             // Replace the current URL, without reloading the page.
             history.replaceState(null, '', url.pathname + '?' + params.toString());
-            // Update the relevant form field.
-            $('#pubAuth').val(defaultAuth);
         }
+
+        // Update the relevant form field.
+        $('#pubAuth').val(defaultAuth);
         
         // Load publications HTML from our REST endpoint.
         function loadPublications(page = 1) {
