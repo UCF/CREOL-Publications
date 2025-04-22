@@ -1,82 +1,59 @@
 (function($){
     $(document).ready(function(){
-        // Set default publication author if missing.
-        var defaultAuth = publicationsSettings.defaultAuth || "";
-        var urlParams = new URLSearchParams(window.location.search);
-        if (!urlParams.get('pubAuth') || urlParams.get('pubAuth') === "0") {
-            urlParams.set('pubAuth', defaultAuth);
-            history.replaceState(null, '', window.location.pathname + '?' + urlParams.toString());
-            $("#pubAuth").val(defaultAuth);
-        }
-
-        // Function to fetch and update publications.
-        function fetchPublications(page = 1) {
-            var url = new URL(window.location);
-            var params = new URLSearchParams(url.search);
-            params.set('pg', page);
-            url.search = params.toString();
-            fetch(decodeURIComponent(url.toString()))
-                .then(response => response.text())
-                .then(data => {
-                    var parser = new DOMParser();
-                    var doc = parser.parseFromString(data, 'text/html');
-                    var publications = doc.getElementById('results');
-                    var pagination = doc.getElementById('pagination-container');
-                    if(publications) {
-                        $("#results").html(publications.innerHTML);
-                    } else {
-                        $("#results").html('');
-                    }
-                    if(pagination) {
-                        $("#pagination-container").html(pagination.innerHTML);
-                        attachPaginationListeners();
-                    } else {
-                        $("#pagination-container").html('');
-                    }
-                })
-                .catch(error => console.error('Error Fetching Publications:', error));
-        }
-
-        function updateURL(page = 1) {
-            var url = new URL(window.location);
-            var params = new URLSearchParams(url.search);
-            params.set('pg', page);
-            history.pushState(null, '', url.pathname + '?' + params.toString());
-        }
-
-        function loadPublications(e) {
-            if(e) { e.preventDefault(); }
-            var formData = $("#publication-form").serialize();
-            var params = new URLSearchParams(formData);
-            params.set('pg', 1);
-            history.pushState(null, '', window.location.pathname + '?' + params.toString());
-            fetchPublications(1);
-        }
-
-        $("#publication-form").on("change", loadPublications);
-        $("#search-button").on("click", loadPublications);
-        $("#publication-form").on("submit", function(e) {
-            e.preventDefault();
-            loadPublications();
-        });
-        $("#search").on("keydown", function(e){
-            if(e.key === "Enter"){
-                e.preventDefault();
-                loadPublications();
-            }
-        });
-
-        function attachPaginationListeners() {
-            $("#pagination-container a").each(function(){
-                $(this).on("click", function(e){
-                    e.preventDefault();
-                    var page = $(this).data("page");
-                    updateURL(page);
-                    fetchPublications(page);
-                });
+        // Function to load publications via our REST endpoint.
+        function loadPublications(page = 1) {
+            var form = $("#publication-form");
+            var formData = form.serializeArray();
+            var params = {};
+            formData.forEach(function(field){
+                params[field.name] = field.value;
+            });
+            // Ensure correct page number.
+            params.pg = page;
+            
+            // Build URL query string.
+            var queryString = $.param(params);
+            var endpoint = '/wp-json/publications/v1/list?' + queryString;
+            
+            // Call the REST endpoint.
+            $.getJSON(endpoint, function(data) {
+                if(data.message){
+                    $("#results").html('<p>' + data.message + '</p>');
+                } else {
+                    // Update your results container with the returned JSON data.
+                    // You might want to build HTML based on your publications, for example:
+                    var html = '';
+                    $.each(data, function(index, pub){
+                        html += '<div class="publication-entry">';
+                        html += '<h5>' + pub.Title + '</h5>';
+                        html += '<p>' + pub.Authors + ' (' + pub.PublicationYear + ')</p>';
+                        html += '</div>';
+                    });
+                    $("#results").html(html);
+                }
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                console.error('Error fetching publications: ', errorThrown );
             });
         }
-
-        attachPaginationListeners();
+        
+        // Attach events to update publications on form change.
+        $("#publication-form").on("change submit", function(e){
+            e.preventDefault();
+            loadPublications(1);
+        });
+        $("#search-button").on("click", function(e){
+            e.preventDefault();
+            loadPublications(1);
+        });
+        
+        // Attach pagination listeners if you output pagination links.
+        $(document).on("click", "#pagination-container a", function(e){
+            e.preventDefault();
+            var page = $(this).data("page");
+            loadPublications(page);
+        });
+        
+        // Optionally load initial publications.
+        loadPublications();
     });
 })(jQuery);

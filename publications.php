@@ -16,6 +16,7 @@ define( 'ALL_YEARS', 0 );
 define( 'ALL_TYPES', 0 );
 define( 'ALL_AUTHORS', 0 );
 
+require_once 'api/publications-rest-controller.php';
 require_once 'includes/publications-feed.php';
 require_once 'includes/publications-functions.php';
 require_once 'includes/publications-layout.php';
