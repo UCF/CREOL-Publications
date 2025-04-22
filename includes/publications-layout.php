@@ -24,8 +24,12 @@
             '1.0',
             true
         );
-        wp_localize_script('publications-script', 'publicationsSettings', array(
-            'defaultAuth' => !empty($_GET['pubAuth']) ? $_GET['pubAuth'] : (defined('ALL_AUTHORS') ? ALL_AUTHORS : ''),
+		// Determine default auth from the $_GET or the shortcode attribute.
+		$defaultAuth = !empty($_GET['pubAuth'])
+			? $_GET['pubAuth']
+			: (defined('ALL_AUTHORS') ? ALL_AUTHORS : '');
+		wp_localize_script('publications-script', 'publicationsSettings', array(
+			'defaultAuth' => $defaultAuth,
         ));
     }
     add_action('wp_enqueue_scripts', 'enqueue_publications_scripts');

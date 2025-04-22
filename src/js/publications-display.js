@@ -1,5 +1,21 @@
 (function($){
     $(document).ready(function(){
+        // Retrieve defaultAuth that was passed from PHP
+        const defaultAuth = publicationsSettings.defaultAuth;
+
+        // Use the URL API to parse and update query parameters.
+        const url = new URL(window.location);
+        const params = url.searchParams;
+
+        // If 'pubAuth' is missing or set to "0", update the URL and the form field.
+        if (!params.get('pubAuth') || params.get('pubAuth') === "0") {
+            params.set('pubAuth', defaultAuth);
+            // Replace the current URL, without reloading the page.
+            history.replaceState(null, '', url.pathname + '?' + params.toString());
+            // Update the relevant form field.
+            $('#pubAuth').val(defaultAuth);
+        }
+        
         // Load publications HTML from our REST endpoint.
         function loadPublications(page = 1) {
             var formData = $("#publication-form").serialize();
