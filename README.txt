@@ -22,7 +22,7 @@ Head over to the [{{My Project}} wiki](https://github.com/UCF/{{My-Project}}/wik
 
 == Changelog ==
 
-= 1.0.0 = {{Update number as needed!}}
+= 1.0.0 = {{Update number as needed!!}}
 * Initial release
 
 
