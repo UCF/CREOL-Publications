@@ -24,22 +24,35 @@
             '1.0',
             true
         );
-		// Determine default auth from the shortcode attribute using wporg_atts['auth']
-		// If it's not set, use the ALL_AUTHORS constant.
-		$defaultAuth = !empty($wporg_atts['auth']) ? $wporg_atts['auth'] : ALL_AUTHORS;
-		wp_localize_script('publications-script', 'publicationsSettings', array(
-			'defaultAuth' => $defaultAuth,
-        ));
     }
     add_action('wp_enqueue_scripts', 'enqueue_publications_scripts');
 
     // Displays the form for query parameters and handles the logic for updating the results using AJAX.
     function publications_form_display( $atts = [], $content = null, $tag = '' ) {
         $atts = array_change_key_case( (array) $atts, CASE_LOWER );
-        $wporg_atts = shortcode_atts(array(
+        
+		$wporg_atts = shortcode_atts(array(
             'auth'  => '',
         ), $atts, $tag);
-        $year_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/YearList' );
+
+		// Determine default auth from the shortcode attribute.
+		$defaultAuth = !empty( $wporg_atts['auth'] ) ? $wporg_atts['auth'] : ALL_AUTHORS;
+	
+		// Enqueue the publications script.
+		wp_enqueue_script(
+			'publications-script', 
+			plugin_dir_url(__FILE__) . '../src/js/publications-display.js',
+			array('jquery'),
+			'1.0',
+			true
+		);
+		
+		// Pass the defaultAuth to our script.
+		wp_localize_script('publications-script', 'publicationsSettings', array(
+			'defaultAuth' => $defaultAuth,
+		));
+        
+		$year_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/YearList' );
         $type_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/TypeList' );
         $pubAuth_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/AuthorList' );
         ob_start();
