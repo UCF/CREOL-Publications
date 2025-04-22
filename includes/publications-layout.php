@@ -24,10 +24,9 @@
             '1.0',
             true
         );
-		// Determine default auth from the $_GET or the shortcode attribute.
-		$defaultAuth = !empty($_GET['pubAuth'])
-			? $_GET['pubAuth']
-			: (defined('ALL_AUTHORS') ? ALL_AUTHORS : '');
+		// Determine default auth from the shortcode attribute using wporg_atts['auth']
+		// If it's not set, use the ALL_AUTHORS constant.
+		$defaultAuth = !empty($wporg_atts['auth']) ? $wporg_atts['auth'] : ALL_AUTHORS;
 		wp_localize_script('publications-script', 'publicationsSettings', array(
 			'defaultAuth' => $defaultAuth,
         ));
