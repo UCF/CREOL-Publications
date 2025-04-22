@@ -151,8 +151,16 @@ gulp.task('js-build-plugin', () => {
   return buildJS(`${config.src.jsPath}/script.js`, config.dist.jsPath);
 });
 
+//
+//  Concat and uglify the publications display JS through babel
+//
+gulp.task('js-build-publications', () => {
+  return buildJS(`${config.src.jsPath}/publications-display.js`, config.dist.jsPath)
+    .pipe(rename('publications.min.js'));
+});
+
 // All js-related tasks
-gulp.task('js', gulp.series('es-lint-plugin', 'js-build-plugin'));
+gulp.task('js', gulp.series('es-lint-plugin', 'js-build-plugin', 'js-build-publications'));
 
 
 //
@@ -181,8 +189,7 @@ gulp.task('watch', (done) => {
   gulp.watch('./**/*.php', gulp.series(serverReload));
 });
 
-
 //
 // Default task
 //
-gulp.task('default', gulp.series('css', 'js', 'readme'));
+gulp.task('default', gulp.series('css', 'js', 'js-build-publications', 'readme'));
