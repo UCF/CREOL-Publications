@@ -19,7 +19,7 @@
     function enqueue_publications_scripts() {
         wp_enqueue_script(
             'publications-script', 
-            plugin_dir_url(__FILE__) . '../js/publications.js',
+            plugin_dir_url(__FILE__) . '../js/publications-display.js',
             array('jquery'),
             '1.0',
             true
