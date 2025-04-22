@@ -1,59 +1,55 @@
 (function($){
     $(document).ready(function(){
-        // Function to load publications via our REST endpoint.
+        // Load publications HTML from our REST endpoint.
         function loadPublications(page = 1) {
-            var form = $("#publication-form");
-            var formData = form.serializeArray();
-            var params = {};
-            formData.forEach(function(field){
-                params[field.name] = field.value;
-            });
-            // Ensure correct page number.
-            params.pg = page;
-            
-            // Build URL query string.
-            var queryString = $.param(params);
-            var endpoint = '/wp-json/publications/v1/list?' + queryString;
-            
-            // Call the REST endpoint.
-            $.getJSON(endpoint, function(data) {
-                if(data.message){
-                    $("#results").html('<p>' + data.message + '</p>');
-                } else {
-                    // Update your results container with the returned JSON data.
-                    // You might want to build HTML based on your publications, for example:
-                    var html = '';
-                    $.each(data, function(index, pub){
-                        html += '<div class="publication-entry">';
-                        html += '<h5>' + pub.Title + '</h5>';
-                        html += '<p>' + pub.Authors + ' (' + pub.PublicationYear + ')</p>';
-                        html += '</div>';
-                    });
-                    $("#results").html(html);
-                }
-            }).fail(function(jqXHR, textStatus, errorThrown) {
-                console.error('Error fetching publications: ', errorThrown );
+            var formData = $("#publication-form").serialize();
+            var params = new URLSearchParams(formData);
+            params.set('pg', page);
+            // Build the REST endpoint URL that returns styled HTML.
+            var endpoint = '/wp-json/publications/v1/html?' + params.toString();
+
+            $.get(endpoint, function(html){
+                // Replace the results container with the rendered HTML.
+                $("#results").html(html);
+                // Reattach pagination link handlers, if needed.
+                attachPaginationListeners();
+            }).fail(function(jqXHR, textStatus, errorThrown){
+                console.error("Error fetching publications HTML:", errorThrown);
             });
         }
-        
-        // Attach events to update publications on form change.
-        $("#publication-form").on("change submit", function(e){
+
+        // Update the URL state without reloading the page.
+        function updateURL(page = 1) {
+            var formData = $("#publication-form").serialize();
+            var params = new URLSearchParams(formData);
+            params.set('pg', page);
+            history.pushState(null, '', window.location.pathname + '?' + params.toString());
+        }
+
+        // Attach event handlers.
+        $("#publication-form").on("submit change", function(e){
             e.preventDefault();
+            updateURL(1);
             loadPublications(1);
         });
         $("#search-button").on("click", function(e){
             e.preventDefault();
+            updateURL(1);
             loadPublications(1);
         });
-        
-        // Attach pagination listeners if you output pagination links.
-        $(document).on("click", "#pagination-container a", function(e){
-            e.preventDefault();
-            var page = $(this).data("page");
-            loadPublications(page);
-        });
-        
-        // Optionally load initial publications.
+        // Handler for pagination links (pagination is rendered in the HTML fragment).
+        function attachPaginationListeners() {
+            $("#pagination-container a").each(function(){
+                $(this).on("click", function(e){
+                    e.preventDefault();
+                    var page = $(this).data("page");
+                    updateURL(page);
+                    loadPublications(page);
+                });
+            });
+        }
+
+        // Load initial publications.
         loadPublications();
     });
 })(jQuery);

@@ -1,9 +1,9 @@
 <?php
-// Hook into rest_api_init to register our endpoint.
-function creol_register_publications_endpoint() {
-    register_rest_route('publications/v1', '/list', array(
+// Register the new REST endpoint for HTML output.
+function creol_register_publications_html_endpoint() {
+    register_rest_route('publications/v1', '/html', array(
         'methods'  => WP_REST_Server::READABLE,
-        'callback' => 'creol_get_publications',
+        'callback' => 'creol_get_publications_html',
         'args'     => array(
             'pubyr'   => array(
                 'required'          => false,
@@ -28,29 +28,20 @@ function creol_register_publications_endpoint() {
         ),
     ));
 }
-add_action('rest_api_init', 'creol_register_publications_endpoint');
+add_action('rest_api_init', 'creol_register_publications_html_endpoint');
 
-// The callback that fetches publication info via the external API.
-function creol_get_publications( $request ) {
+// Use output buffering to capture your styled HTML.
+function creol_get_publications_html( $request ) {
     $pubyr   = $request->get_param('pubyr') ? $request->get_param('pubyr') : ALL_YEARS;
     $type    = $request->get_param('type') ? $request->get_param('type') : ALL_TYPES;
     $pubAuth = $request->get_param('pubAuth') ? $request->get_param('pubAuth') : ALL_AUTHORS;
     $page    = $request->get_param('pg') ? $request->get_param('pg') : 1;
     $search  = $request->get_param('search') ? $request->get_param('search') : "";
     
-    // Build the API URL.
-    $api_url = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfo?pubyr=' . $pubyr 
-        . '&pubType=' . $type 
-        . '&pubAuth=' . $pubAuth 
-        . '&pg=' . $page 
-        . '&pubsearch=' . urlencode($search);
-        
-    $publications = get_json_nocache( $api_url );
+    // Capture the output of publications_display().
+    ob_start();
+    publications_display($pubyr, $type, $pubAuth, $page, $search);
+    $html = ob_get_clean();
     
-    if ( empty( $publications ) ) {
-        return new WP_REST_Response(array('message' => 'No publications found.' ), 200);
-    }
-    
-    // Optionally, you might add pagination info here.
-    return new WP_REST_Response($publications, 200);
+    return new WP_REST_Response($html, 200);
 }
