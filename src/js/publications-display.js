@@ -7,17 +7,14 @@
         const url = new URL(window.location);
         const params = url.searchParams;
 
-        // Check if we're not on the homepage.
-        const isHomepage = window.location.pathname === '/';
-
-        // If 'pubAuth' is missing or set to "0" and we're not on the homepage, update the URL.
-        if (!isHomepage && (!params.get('pubAuth') || params.get('pubAuth') === "0")) {
+        // If 'pubAuth' is missing or set to "0", update the URL and the form field.
+        if (!params.get('pubAuth') || params.get('pubAuth') === "0") {
             params.set('pubAuth', defaultAuth);
             // Replace the current URL, without reloading the page.
             history.replaceState(null, '', url.pathname + '?' + params.toString());
         }
 
-        // Always update the form field.
+        // Update the relevant form field.
         $('#pubAuth').val(defaultAuth);
         
         // Load publications HTML from our REST endpoint.
@@ -29,7 +26,9 @@
             var endpoint = '/wp-json/publications/v1/html?' + params.toString();
 
             $.get(endpoint, function(html){
+                // Replace the results container with the rendered HTML.
                 $("#results").html(html);
+                // Reattach pagination link handlers, if needed.
                 attachPaginationListeners();
             }).fail(function(jqXHR, textStatus, errorThrown){
                 console.error("Error fetching publications HTML:", errorThrown);
@@ -55,7 +54,7 @@
             updateURL(1);
             loadPublications(1);
         });
-        // Handler for pagination links.
+        // Handler for pagination links (pagination is rendered in the HTML fragment).
         function attachPaginationListeners() {
             $("#pagination-container a").each(function(){
                 $(this).on("click", function(e){
@@ -66,7 +65,7 @@
                 });
             });
         }
-        
+
         // Load initial publications.
         loadPublications();
     });
