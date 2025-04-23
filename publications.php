@@ -22,15 +22,3 @@ require_once 'includes/publications-functions.php';
 require_once 'includes/publications-layout.php';
 
 add_shortcode( 'publications', 'publications_form_display');
-
-function ignore_publications_query_vars_in_main_query( $query ) {
-    if ( !is_admin() && $query->is_main_query() && is_front_page() ) {
-        // Remove custom query var parameters so they don't alter the main query.
-        $query->set('pubyr', '');
-        $query->set('type', '');
-        $query->set('pubAuth', '');
-        $query->set('pg', '');
-        $query->set('search', '');
-    }
-}
-add_action( 'pre_get_posts', 'ignore_publications_query_vars_in_main_query' );
