@@ -4,17 +4,6 @@
  * Handles query searches, filters data from API, and displays results.
  **/
 
-    // Register custom query variables for filtering
-    function register_publications_query_vars( $vars ) {
-        $vars[] = 'pubyr';
-        $vars[] = 'type';
-        $vars[] = 'pubAuth';
-        $vars[] = 'pg';
-        $vars[] = 'search';
-        return $vars;
-    }
-    add_filter('query_vars', 'register_publications_query_vars');
-
     // Enqueue our external JavaScript file and pass settings.
     function enqueue_publications_scripts() {
         wp_enqueue_script(
