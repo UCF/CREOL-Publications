@@ -4,6 +4,26 @@
  * Handles query searches, filters data from API, and displays results.
  **/
 
+    // Register custom query variables for filtering
+    function register_publications_query_vars( $vars ) {
+        $vars[] = 'pubyr';
+        $vars[] = 'type';
+        $vars[] = 'pubAuth';
+        $vars[] = 'pg';
+        $vars[] = 'search';
+        return $vars;
+    }
+    add_filter('query_vars', 'register_publications_query_vars');
+
+	function publications_add_rewrite_tags() {
+		add_rewrite_tag( '%pubyr%',   '([^&]+)' );
+		add_rewrite_tag( '%type%',    '([^&]+)' );
+		add_rewrite_tag( '%pubAuth%', '([^&]+)' );
+		add_rewrite_tag( '%pg%',      '([^&]+)' );
+		add_rewrite_tag( '%search%',  '([^&]+)' );
+	}
+	add_action( 'init', 'publications_add_rewrite_tags' );
+
     // Enqueue our external JavaScript file and pass settings.
     function enqueue_publications_scripts() {
         wp_enqueue_script(
