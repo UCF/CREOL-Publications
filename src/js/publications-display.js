@@ -3,27 +3,29 @@
         // Retrieve defaultAuth that was passed from PHP
         const defaultAuth = publicationsSettings.defaultAuth;
 
-        // Use the URL API to parse and update query parameters.
-        const url = new URL(window.location);
-        const params = url.searchParams;
+        // Use the hash fragment instead of search parameters.
+        let raw = window.location.hash.slice(1);
+        let params = new URLSearchParams(raw);
+        let currentAuth = params.get('pubAuth'); // Get current value from hash
 
-        // If 'pubAuth' is missing or set to "0", update the URL and the form field.
-        if (!params.get('pubAuth') || params.get('pubAuth') === "0") {
-            params.set('pubAuth', defaultAuth);
-            // Replace the current URL, without reloading the page.
-            history.replaceState(null, '', url.pathname + '?' + params.toString());
+        // If 'pubAuth' is missing from the hash, set it to the default and update the hash.
+        if (currentAuth === null) {
+            currentAuth = defaultAuth; // Use default only if missing
+            params.set('pubAuth', currentAuth);
+            history.replaceState(null, '', window.location.pathname + '#' + params.toString());
         }
+        // If currentAuth is "0" or any other value, we keep it.
 
-        // Update the relevant form field.
-        $('#pubAuth').val(defaultAuth);
-        
+        // Update the relevant form field based on the value determined from the hash (or default).
+        $('#pubAuth').val(currentAuth);
+
         // Load publications HTML from our REST endpoint.
         function loadPublications(page = 1) {
-            var formData = $("#publication-form").serialize();
-            var params = new URLSearchParams(formData);
-            params.set('pg', page);
-            // Build the REST endpoint URL that returns styled HTML.
-            var endpoint = '/wp-json/publications/v1/html?' + params.toString();
+            const formData = $("#publication-form").serialize(); // This will now correctly include pubAuth=0 if selected
+            const formParams = new URLSearchParams(formData);
+            formParams.set('pg', page);
+            // Build the REST endpoint URL with query parameters.
+            const endpoint = '/wp-json/publications/v1/html?' + formParams.toString();
 
             $.get(endpoint, function(html){
                 // Replace the results container with the rendered HTML.
@@ -35,38 +37,39 @@
             });
         }
 
-        // Update the URL state without reloading the page.
-        function updateURL(page = 1) {
-            var formData = $("#publication-form").serialize();
-            var params = new URLSearchParams(formData);
-            params.set('pg', page);
-            history.pushState(null, '', window.location.pathname + '?' + params.toString());
+        // Update the hash state without reloading the page.
+        function updateHash(page = 1) {
+            const formData = $("#publication-form").serialize();
+            const formParams = new URLSearchParams(formData);
+            formParams.set('pg', page);
+            history.replaceState(null, '', window.location.pathname + '#' + formParams.toString());
         }
 
         // Attach event handlers.
         $("#publication-form").on("submit change", function(e){
             e.preventDefault();
-            updateURL(1);
-            loadPublications(1);
+            updateHash(1); // Update hash based on current form state
+            loadPublications(1); // Load based on current form state
         });
         $("#search-button").on("click", function(e){
             e.preventDefault();
-            updateURL(1);
+            updateHash(1);
             loadPublications(1);
         });
+
         // Handler for pagination links (pagination is rendered in the HTML fragment).
         function attachPaginationListeners() {
             $("#pagination-container a").each(function(){
                 $(this).on("click", function(e){
                     e.preventDefault();
-                    var page = $(this).data("page");
-                    updateURL(page);
-                    loadPublications(page);
+                    const page = $(this).data("page");
+                    updateHash(page); // Update hash first
+                    loadPublications(page); // Load based on updated hash/form state
                 });
             });
         }
 
-        // Load initial publications.
+        // Load initial publications based on the potentially updated hash/form state.
         loadPublications();
     });
 })(jQuery);
