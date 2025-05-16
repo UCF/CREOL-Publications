@@ -71,7 +71,8 @@
                 <!-- Form -->
                 <form method="get" name="form" id="publication-form" class="form-inline">
                     <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                        <select name="pubyr" id="pubyr" class="form-control" style="width: 100%;">
+                        <select name="pubyr" id="pubyr" class="form-control" style="width: 100%;"aria-label="Filter publications by year">
+
                             <option value="0">Year</option>
                             <?php for ( $i = 0; $i < count( $year_arr ); $i++ ) : ?>
                                 <option value="<?= $year_arr[ $i ]->PublicationTxt ?>">
@@ -81,7 +82,7 @@
                         </select>
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                        <select name="type" id="type" class="form-control" style="width: 100%;">
+                        <select name="type" id="type" class="form-control" style="width: 100%;"aria-label="Filter publications by type">
                             <option value="0">Type</option>
                             <?php for ( $i = 0; $i < count( $type_arr ); $i++ ) : ?>
                                 <option value="<?= $type_arr[ $i ]->PublicationType ?>">
@@ -91,7 +92,7 @@
                         </select>
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                        <select name="pubAuth" id="pubAuth" class="form-control" style="width: 100%;">
+                        <select name="pubAuth" id="pubAuth" class="form-control" style="width: 100%; "aria-label="Filter publications by author">
                             <option value="0">Author</option>
                             <?php for ( $i = 0; $i < count( $pubAuth_arr ); $i++ ) : ?>
                                 <option value="<?= $pubAuth_arr[ $i ]->PeopleID ?>">
