@@ -106,9 +106,9 @@
                         <div class="input-group" style="width: 100%;">
                             <input type="search" id="search" name="search" class="form-control" placeholder="Search" aria-label="Search">
                             <span class="input-group-btn">
-                                <button class="btn btn-primary" type="button" id="search-button">
-                                    <i class="fa fa-search" aria-hidden="true"></i>
-                                </button>
+                                <button class="btn btn-primary" type="button" id="search-button" aria-label="Search">
+    							<i class="fa fa-search" aria-hidden="true"></i>
+							</button>
                             </span>
                         </div>
                     </div>
