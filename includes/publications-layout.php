@@ -60,7 +60,7 @@
 		wp_localize_script('publications-script', 'publicationsSettings', array(
 			'defaultAuth' => $defaultAuth,
 		));
-        
+        error_log("API URL: " . $url);
 		$year_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/YearList' );
         $type_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/TypeList' );
         $pubAuth_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/AuthorList' );
