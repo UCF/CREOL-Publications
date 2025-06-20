@@ -7,6 +7,7 @@ function creol_register_publications_html_endpoint() {
         'args'     => array(
             'pubyr'   => array(
                 'required'          => false,
+                'validate_callback' => 'absint',
             ),
             'type'    => array(
                 'required'          => false,
@@ -14,7 +15,6 @@ function creol_register_publications_html_endpoint() {
             ),
             'pubAuth' => array(
                 'required'          => false,
-                'validate_callback' => 'absint',
             ),
             'pg'      => array(
                 'required'          => false,
