@@ -66,6 +66,10 @@
             updateHash(1);
             loadPublications(1);
         });
+        $('#pubAuth').on('change', function() {
+            updateHash(1);
+            loadPublications(1);
+        });
 
         // Handler for pagination links (pagination is rendered in the HTML fragment).
         function attachPaginationListeners() {

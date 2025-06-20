@@ -71,11 +71,11 @@
                 <!-- Form -->
                 <form method="get" name="form" id="publication-form" class="form-inline">
                     <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-						<select name="pubAuth[]" id="pubAuth" class="form-control" style="width: 100%;" aria-label="Filter publications by author" multiple>
-							<option value="0">Author</option>
-							<?php for ( $i = 0; $i < count( $pubAuth_arr ); $i++ ) : ?>
-								<option value="<?= $pubAuth_arr[ $i ]->PeopleID ?>">
-									<?= $pubAuth_arr[ $i ]->LastFirstName ?>
+						<select name="pubyr" id="pubyr" class="form-control" style="width: 100%;" aria-label="Filter publications by year">
+							<option value="0">Year</option>
+							<?php for ( $i = 0; $i < count( $year_arr ); $i++ ) : ?>
+								<option value="<?= $year_arr[ $i ]->Year ?>">
+									<?= $year_arr[ $i ]->Year ?>
 								</option>
 							<?php endfor; ?>
 						</select>
@@ -91,14 +91,14 @@
                         </select>
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                        <select name="pubAuth" id="pubAuth" class="form-control" style="width: 100%; "aria-label="Filter publications by author">
-                            <option value="0">Author</option>
-                            <?php for ( $i = 0; $i < count( $pubAuth_arr ); $i++ ) : ?>
-                                <option value="<?= $pubAuth_arr[ $i ]->PeopleID ?>">
-                                    <?= $pubAuth_arr[ $i ]->LastFirstName ?>
-                                </option>
-                            <?php endfor; ?>
-                        </select>
+                        <select name="pubAuth[]" id="pubAuth" class="form-control" style="width: 100%;" aria-label="Filter publications by author" multiple>
+							<option value="0">Author</option>
+							<?php for ( $i = 0; $i < count( $pubAuth_arr ); $i++ ) : ?>
+								<option value="<?= $pubAuth_arr[ $i ]->PeopleID ?>">
+									<?= $pubAuth_arr[ $i ]->LastFirstName ?>
+								</option>
+							<?php endfor; ?>
+						</select>
                     </div>
                     <input type="hidden" name="pg" id="pg" value="<?php echo isset($_GET['pg']) ? $_GET['pg'] : 1; ?>">
                     <div class="col-xs-12 col-sm-6 col-md-6 form-group">
@@ -122,9 +122,9 @@
                             $pubyr = isset($_GET['pubyr']) ? $_GET['pubyr'] : ALL_YEARS;
                             $type = isset($_GET['type']) ? $_GET['type'] : ALL_TYPES;
                             $pubAuth = isset($_GET['pubAuth']) ? $_GET['pubAuth'] : ALL_AUTHORS;
-									if (is_array($pubAuth)) {
-										$pubAuth = implode(',', $pubAuth);
-									}
+								if (is_array($pubAuth)) {
+									$pubAuth = implode(',', $pubAuth);
+								}
                             $page = isset($_GET['pg']) ? $_GET['pg'] : 1;
                             $search = isset($_GET['search']) ? $_GET['search'] : "";
                             if (isset($_GET['pubyr']) || isset($_GET['type']) || isset($_GET['pubAuth']) || isset($_GET['pg']) || isset($_GET['search'])) {
