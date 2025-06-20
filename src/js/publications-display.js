@@ -1,5 +1,11 @@
 (function($){
     $(document).ready(function(){
+        $('#pubAuth').select2({
+            placeholder: "Select author(s)",
+            allowClear: true,
+            width: '100%'
+        });
+
         // Retrieve defaultAuth that was passed from PHP
         const defaultAuth = publicationsSettings.defaultAuth;
 
