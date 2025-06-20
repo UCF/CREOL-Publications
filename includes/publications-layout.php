@@ -60,7 +60,6 @@
 		wp_localize_script('publications-script', 'publicationsSettings', array(
 			'defaultAuth' => $defaultAuth,
 		));
-        error_log("API URL: " . $url);
 		$year_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/YearList' );
         $type_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/TypeList' );
         $pubAuth_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/AuthorList' );
@@ -149,6 +148,7 @@
 	// Fetches parameters from the URL, displays the pagination, and displays the publications.
 	function publications_display( $year, $type, $pubAuth, $page, $search ) {
 		$url = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfo?pubyr=' . $year . '&pubType=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . $page . '&pubsearch=' . $search;
+		 error_log("API URL: " . $url);
 		$publication_info_arr = get_json_nocache($url);
 		if (empty($publication_info_arr)) {
 			?>
