@@ -17,7 +17,11 @@
         // If currentAuth is "0" or any other value, we keep it.
 
         // Update the relevant form field based on the value determined from the hash (or default).
-        $('#pubAuth').val(currentAuth);
+        if (currentAuth && currentAuth.includes(',')) {
+            $('#pubAuth').val(currentAuth.split(','));
+        } else {
+            $('#pubAuth').val(currentAuth);
+        }
 
         // Load publications HTML from our REST endpoint.
         function loadPublications(page = 1) {

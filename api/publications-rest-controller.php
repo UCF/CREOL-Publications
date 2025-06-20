@@ -7,7 +7,6 @@ function creol_register_publications_html_endpoint() {
         'args'     => array(
             'pubyr'   => array(
                 'required'          => false,
-                'validate_callback' => 'absint',
             ),
             'type'    => array(
                 'required'          => false,
@@ -37,7 +36,11 @@ function creol_get_publications_html( $request ) {
     $pubAuth = $request->get_param('pubAuth') ? $request->get_param('pubAuth') : ALL_AUTHORS;
     $page    = $request->get_param('pg') ? $request->get_param('pg') : 1;
     $search  = $request->get_param('search') ? $request->get_param('search') : "";
-    
+
+    // If pubAuth is an array, join as comma-separated string
+    if (is_array($pubAuth)) {
+        $pubAuth = implode(',', $pubAuth);
+    }
     // Capture the output of publications_display().
     ob_start();
     publications_display($pubyr, $type, $pubAuth, $page, $search);
