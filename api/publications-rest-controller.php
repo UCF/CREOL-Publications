@@ -40,6 +40,10 @@ function creol_get_publications_html( $request ) {
     // If pubAuth is an array, join as comma-separated string
     if (is_array($pubAuth)) {
         $pubAuth = implode(',', $pubAuth);
+    } elseif (is_string($pubAuth) && strpos($pubAuth, ',') === false) {
+        // If it's a string and not already comma-separated, leave as is
+        // (or you can cast to string to be sure)
+        $pubAuth = (string)$pubAuth;
     }
     // Capture the output of publications_display().
     ob_start();
