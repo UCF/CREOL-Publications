@@ -61,6 +61,7 @@
 			'defaultAuth' => $defaultAuth,
 		));
 		$year_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/YearList' );
+		error_log('Year Array Structure: ' . print_r($year_arr, true));
         $type_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/TypeList' );
         $pubAuth_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/AuthorList' );
         ob_start();
@@ -72,11 +73,20 @@
                     <div class="col-xs-12 col-sm-6 col-md-2 form-group">
 						<select name="pubyr" id="pubyr" class="form-control" style="width: 100%;" aria-label="Filter publications by year">
 							<option value="0">Year</option>
-							<?php for ( $i = 0; $i < count( $year_arr ); $i++ ) : ?>
-								<option value="<?= $year_arr[ $i ]->Year ?>">
-									<?= $year_arr[ $i ]->Year ?>
-								</option>
-							<?php endfor; ?>
+							<?php 
+							if (!empty($year_arr)) {
+								foreach ($year_arr as $year) :
+									$yearValue = isset($year->Year) ? $year->Year : 
+											(isset($year->year) ? $year->year : 
+											(isset($year->PublicationYear) ? $year->PublicationYear : ''));
+							?>
+									<option value="<?= htmlspecialchars($yearValue) ?>">
+										<?= htmlspecialchars($yearValue) ?>
+									</option>
+							<?php 
+								endforeach;
+							}
+							?>
 						</select>
 					</div>
                     <div class="col-xs-12 col-sm-6 col-md-2 form-group">
