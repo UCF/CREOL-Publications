@@ -90,13 +90,14 @@
                         </select>
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                        <select name="pubAuth[]" id="pubAuth" class="form-control" style="width: 100%;" aria-label="Filter publications by author" multiple>
-							<?php for ( $i = 0; $i < count( $pubAuth_arr ); $i++ ) : ?>
-								<option value="<?= $pubAuth_arr[ $i ]->PeopleID ?>">
-									<?= $pubAuth_arr[ $i ]->LastFirstName ?>
-								</option>
-							<?php endfor; ?>
-						</select>
+                        <select name="pubAuth" id="pubAuth" class="form-control" style="width: 100%;" aria-label="Filter publications by author">
+                            <option value="0">Author</option>
+                            <?php for ( $i = 0; $i < count( $pubAuth_arr ); $i++ ) : ?>
+                                <option value="<?= $pubAuth_arr[ $i ]->PeopleID ?>">
+                                    <?= $pubAuth_arr[ $i ]->LastFirstName ?>
+                                </option>
+                            <?php endfor; ?>
+                        </select>
                     </div>
                     <input type="hidden" name="pg" id="pg" value="<?php echo isset($_GET['pg']) ? $_GET['pg'] : 1; ?>">
                     <div class="col-xs-12 col-sm-6 col-md-6 form-group">
@@ -120,9 +121,6 @@
                             $pubyr = isset($_GET['pubyr']) ? $_GET['pubyr'] : ALL_YEARS;
                             $type = isset($_GET['type']) ? $_GET['type'] : ALL_TYPES;
                             $pubAuth = isset($_GET['pubAuth']) ? $_GET['pubAuth'] : ALL_AUTHORS;
-								if (is_array($pubAuth)) {
-									$pubAuth = implode(',', $pubAuth);
-								}
                             $page = isset($_GET['pg']) ? $_GET['pg'] : 1;
                             $search = isset($_GET['search']) ? $_GET['search'] : "";
                             if (isset($_GET['pubyr']) || isset($_GET['type']) || isset($_GET['pubAuth']) || isset($_GET['pg']) || isset($_GET['search'])) {
@@ -148,7 +146,6 @@
 	// Fetches parameters from the URL, displays the pagination, and displays the publications.
 	function publications_display( $year, $type, $pubAuth, $page, $search ) {
 		$url = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfo?pubyr=' . $year . '&pubType=' . $type . '&pubAuth=' . $pubAuth . '&pg=' . $page . '&pubsearch=' . $search;
-		 error_log("API URL: " . $url);
 		$publication_info_arr = get_json_nocache($url);
 		if (empty($publication_info_arr)) {
 			?>
