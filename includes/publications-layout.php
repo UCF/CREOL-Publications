@@ -89,14 +89,14 @@
                             <?php endfor; ?>
                         </select>
                     </div>
-                    <div class="col-xs-12 col-sm-6 col-md-2 form-group">
+                     <div class="col-xs-12 col-sm-6 col-md-2 form-group">
                         <select name="pubAuth" id="pubAuth" class="form-control" style="width: 100%;" aria-label="Filter publications by author">
                             <option value="0">Author</option>
-                            <?php for ( $i = 0; $i < count( $pubAuth_arr ); $i++ ) : ?>
-                                <option value="<?= $pubAuth_arr[ $i ]->PeopleID ?>">
-                                    <?= $pubAuth_arr[ $i ]->LastFirstName ?>
+                            <?php foreach ($pubAuth_arr as $author) : ?>
+                                <option value="<?= $author->PeopleID ?>">
+                                    <?= $author->LastFirstName ?>
                                 </option>
-                            <?php endfor; ?>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <input type="hidden" name="pg" id="pg" value="<?php echo isset($_GET['pg']) ? $_GET['pg'] : 1; ?>">
