@@ -39,14 +39,14 @@
     // Displays the form for query parameters and handles the logic for updating the results using AJAX.
     function publications_form_display( $atts = [], $content = null, $tag = '' ) {
         $atts = array_change_key_case( (array) $atts, CASE_LOWER );
-        
+
 		$wporg_atts = shortcode_atts(array(
             'auth'  => '',
         ), $atts, $tag);
 
 		// Determine default auth from the shortcode attribute.
 		$defaultAuth = !empty( $wporg_atts['auth'] ) ? $wporg_atts['auth'] : ALL_AUTHORS;
-	
+
 		// Enqueue the publications script.
 		wp_enqueue_script(
 			'publications-script', 
@@ -55,13 +55,13 @@
 			'1.0',
 			true
 		);
-		
+
 		// Pass the defaultAuth to our script.
 		wp_localize_script('publications-script', 'publicationsSettings', array(
 			'defaultAuth' => $defaultAuth,
 		));
+
 		$year_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/YearList' );
-		error_log('Year Array Structure: ' . print_r($year_arr, true));
         $type_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/TypeList' );
         $pubAuth_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/AuthorList' );
         ob_start();
@@ -71,24 +71,16 @@
                 <!-- Form -->
                 <form method="get" name="form" id="publication-form" class="form-inline">
                     <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-						<select name="pubyr" id="pubyr" class="form-control" style="width: 100%;" aria-label="Filter publications by year">
-							<option value="0">Year</option>
-							<?php 
-							if (!empty($year_arr)) {
-								foreach ($year_arr as $year) :
-									$yearValue = isset($year->Year) ? $year->Year : 
-											(isset($year->year) ? $year->year : 
-											(isset($year->PublicationYear) ? $year->PublicationYear : ''));
-							?>
-									<option value="<?= htmlspecialchars($yearValue) ?>">
-										<?= htmlspecialchars($yearValue) ?>
-									</option>
-							<?php 
-								endforeach;
-							}
-							?>
-						</select>
-					</div>
+                        <select name="pubyr" id="pubyr" class="form-control" style="width: 100%;"aria-label="Filter publications by year">
+
+                            <option value="0">Year</option>
+                            <?php for ( $i = 0; $i < count( $year_arr ); $i++ ) : ?>
+                                <option value="<?= $year_arr[ $i ]->PublicationTxt ?>">
+                                    <?= $year_arr[ $i ]->PublicationTxt ?>
+                                </option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
                     <div class="col-xs-12 col-sm-6 col-md-2 form-group">
                         <select name="type" id="type" class="form-control" style="width: 100%;"aria-label="Filter publications by type">
                             <option value="0">Type</option>
@@ -99,18 +91,18 @@
                             <?php endfor; ?>
                         </select>
                     </div>
-                     <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                        <select name="pubAuth" id="pubAuth" class="form-control" style="width: 100%;" aria-label="Filter publications by author">
+                    <div class="col-xs-12 col-sm-6 col-md-2 form-group">
+                        <select name="pubAuth" id="pubAuth" class="form-control" style="width: 100%; "aria-label="Filter publications by author">
                             <option value="0">Author</option>
-                            <?php foreach ($pubAuth_arr as $author) : ?>
-                                <option value="<?= $author->PeopleID ?>">
-                                    <?= $author->LastFirstName ?>
+                            <?php for ( $i = 0; $i < count( $pubAuth_arr ); $i++ ) : ?>
+                                <option value="<?= $pubAuth_arr[ $i ]->PeopleID ?>">
+                                    <?= $pubAuth_arr[ $i ]->LastFirstName ?>
                                 </option>
-                            <?php endforeach; ?>
+                            <?php endfor; ?>
                         </select>
                     </div>
                     <input type="hidden" name="pg" id="pg" value="<?php echo isset($_GET['pg']) ? $_GET['pg'] : 1; ?>">
-                    <div class="col-xs-12 col-sm-6 col-md-6 form-group">
+                     <div class="col-xs-12 col-sm-6 col-md-6 form-group">
                         <div class="input-group" style="width: 100%;">
                             <input type="search" id="search" name="search" class="form-control" placeholder="Search" aria-label="Search">
                             <span class="input-group-btn">
@@ -170,7 +162,7 @@
 			return;
 		}
 
-	
+
 		$countUrl = 'https://api.creol.ucf.edu/PublicationsJson.asmx/PublicationInfoCount?Yr=' . $year . '&Type=' . $type . '&Author=' . $pubAuth . '&pubsearch=' . $search;
 		$total_publications = get_plain_text($countUrl);
 
@@ -262,10 +254,10 @@
 					</div>
 				</div>
 			</div>
-				
+
 			<?php
 		}
-		
+
 		$range = 3;
 		echo '<div class="text-right" id="pagination-container">';
 		if ($page > 1) {
@@ -296,4 +288,4 @@
 		echo '</div>';
 		echo '<br>';
 		echo '<br>';
-}
+	}

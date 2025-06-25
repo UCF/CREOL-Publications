@@ -2,30 +2,19 @@
 
 function get_json_nocache( $url ) {
     $args = array(
-        'timeout' => 30,
-        'headers' => array(
-            'Accept' => 'application/json'
-        )
+        'timeout' => 60,
     );
 
     $request = wp_remote_get( $url, $args );
-    
-    if (is_wp_error($request)) {
-        error_log('WP Error in get_json_nocache: ' . $request->get_error_message());
-        return array();
-    }
 
-    $body = wp_remote_retrieve_body($request);
-    error_log('API Response for ' . $url . ': ' . $body);
+    $items = json_decode( wp_remote_retrieve_body( $request ) );
 
-    $data = json_decode($body);
-    
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        error_log('JSON decode error: ' . json_last_error_msg());
-        return array();
-    }
 
-    return $data;
+	// $items = json_decode( wp_remote_retrieve_body( $request ) );
+
+	$items = array( $items->response )[0];
+
+	return $items;
 }
 
 function get_plain_text( $url ) {
