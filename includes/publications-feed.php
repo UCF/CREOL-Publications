@@ -2,21 +2,30 @@
 
 function get_json_nocache( $url ) {
     $args = array(
-        'timeout' => 60,
+        'timeout' => 30,
+        'headers' => array(
+            'Accept' => 'application/json'
+        )
     );
 
     $request = wp_remote_get( $url, $args );
-    $body = wp_remote_retrieve_body( $request );
-    $items = json_decode( $body );
-     error_log('API Response for ' . $url . ': ' . $body);
-
-    // Defensive: check if $items and $items->response exist
-    if ( isset($items->response) ) {
-        return $items->response;
-    } else {
-        error_log("API returned invalid response for URL: $url. Body: $body");
-        return array(); // or false, or handle as you wish
+    
+    if (is_wp_error($request)) {
+        error_log('WP Error in get_json_nocache: ' . $request->get_error_message());
+        return array();
     }
+
+    $body = wp_remote_retrieve_body($request);
+    error_log('API Response for ' . $url . ': ' . $body);
+
+    $data = json_decode($body);
+    
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        error_log('JSON decode error: ' . json_last_error_msg());
+        return array();
+    }
+
+    return $data;
 }
 
 function get_plain_text( $url ) {
