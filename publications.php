@@ -20,6 +20,7 @@ require_once 'api/publications-rest-controller.php';
 require_once 'includes/publications-feed.php';
 require_once 'includes/publications-functions.php';
 require_once 'includes/publications-layout.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/publications-shortcode.php';
 
 function publications_enqueue_select2() {
     wp_enqueue_style('select2-css', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css');
