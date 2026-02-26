@@ -42,10 +42,14 @@
 
 		$wporg_atts = shortcode_atts(array(
             'auth'  => '',
+			'year'  => '',
+			'type'  => '',
         ), $atts, $tag);
 
 		// Determine default auth from the shortcode attribute.
 		$defaultAuth = !empty( $wporg_atts['auth'] ) ? $wporg_atts['auth'] : ALL_AUTHORS;
+		$defaultYear = !empty( $wporg_atts['year'] ) ? $wporg_atts['year'] : ALL_YEARS;
+		$defaultType = !empty( $wporg_atts['type'] ) ? $wporg_atts['type'] : ALL_TYPES;
 
 		// Enqueue the publications script.
 		wp_enqueue_script(
@@ -56,9 +60,11 @@
 			true
 		);
 
-		// Pass the defaultAuth to our script.
+		// Pass the defaults to our script.
 		wp_localize_script('publications-script', 'publicationsSettings', array(
 			'defaultAuth' => $defaultAuth,
+			'defaultYear' => $defaultYear,
+			'defaultType' => $defaultType,
 		));
 
 		$year_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/YearList' );
