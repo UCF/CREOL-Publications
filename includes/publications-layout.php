@@ -65,6 +65,7 @@
 			'defaultAuth' => $defaultAuth,
 			'defaultYear' => $defaultYear,
 			'defaultType' => $defaultType,
+			'restUrl'     => esc_url_raw( rest_url( 'publications/v1/html' ) ),
 		));
 
 		$year_arr = get_json_nocache( 'https://api.creol.ucf.edu/PublicationsJson.asmx/YearList' );
@@ -136,7 +137,9 @@
                             }
                             if( $isDefault) {
                                 $authorToUse = $isDefault && !empty($wporg_atts['auth']) ? $wporg_atts['auth'] : $pubAuth;
-                                publications_display($pubyr, $type, $authorToUse, $page, $search);
+								$yearToUse = $isDefault && !empty($wporg_atts['year']) ? $wporg_atts['year'] : $pubyr;
+								$typeToUse = $isDefault && !empty($wporg_atts['type']) ? $wporg_atts['type'] : $type;
+                                publications_display($yearToUse, $typeToUse, $authorToUse, $page, $search);
                             } else {
                                 publications_display($pubyr, $type, $pubAuth, $page, $search);
                             }

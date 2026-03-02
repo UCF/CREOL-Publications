@@ -3,6 +3,7 @@
 function creol_register_publications_html_endpoint() {
     register_rest_route('publications/v1', '/html', array(
         'methods'  => WP_REST_Server::READABLE,
+        'permission_callback' => '__return_true',
         'callback' => 'creol_get_publications_html',
         'args'     => array(
             'pubyr'   => array(
@@ -31,11 +32,11 @@ add_action('rest_api_init', 'creol_register_publications_html_endpoint');
 
 // Use output buffering to capture your styled HTML.
 function creol_get_publications_html( $request ) {
-    $pubyr   = $request->get_param('pubyr') ? $request->get_param('pubyr') : ALL_YEARS;
-    $type    = $request->get_param('type') ? $request->get_param('type') : ALL_TYPES;
-    $pubAuth = $request->get_param('pubAuth') ? $request->get_param('pubAuth') : ALL_AUTHORS;
-    $page    = $request->get_param('pg') ? $request->get_param('pg') : 1;
-    $search  = $request->get_param('search') ? $request->get_param('search') : "";
+    $pubyr   = $request->get_param('pubyr') ? absint($request->get_param('pubyr')) : ALL_YEARS;
+    $type    = $request->get_param('type') ? absint($request->get_param('type')) : ALL_TYPES;
+    $pubAuth = $request->get_param('pubAuth') ? sanitize_text_field($request->get_param('pubAuth')) : ALL_AUTHORS;
+    $page    = $request->get_param('pg') ? absint($request->get_param('pg')) : 1;
+    $search  = $request->get_param('search') ? sanitize_text_field($request->get_param('search')) : "";
     
     // Capture the output of publications_display().
     ob_start();

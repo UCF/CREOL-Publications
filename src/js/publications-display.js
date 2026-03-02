@@ -1,13 +1,17 @@
 (function($){
     $(document).ready(function(){
 
-        // Retrieve defaultAuth that was passed from PHP
+        // Retrieve default that was passed from PHP
         const defaultAuth = publicationsSettings.defaultAuth;
+        const defaultYear = publicationsSettings.defaultYear;
+        const defaultType = publicationsSettings.defaultType;
 
         // Use the hash fragment instead of search parameters.
         let raw = window.location.hash.slice(1);
         let params = new URLSearchParams(raw);
         let currentAuth = params.get('pubAuth'); // Get current value from hash
+        let currentYear = params.get('pubyr'); // Get current year from hash
+        let currentType = params.get('type'); // Get current type from hash
 
         // If 'pubAuth' is missing from the hash, set it to the default and update the hash.
         if (currentAuth === null) {
@@ -15,7 +19,16 @@
             params.set('pubAuth', currentAuth);
             history.replaceState(null, '', window.location.pathname + '#' + params.toString());
         }
-        // If currentAuth is "0" or any other value, we keep it.
+        if (currentYear === null) {
+            currentYear = defaultYear; // Use default only if missing
+            params.set('pubyr', currentYear);
+            history.replaceState(null, '', window.location.pathname + '#' + params.toString());
+        }
+        if (currentType === null) {
+            currentType = defaultType; // Use default only if missing
+            params.set('type', currentType);
+            history.replaceState(null, '', window.location.pathname + '#' + params.toString());
+        }
 
         // Update the relevant form field based on the value determined from the hash (or default).
         if (currentAuth && currentAuth.includes(',')) {
@@ -23,6 +36,8 @@
         } else {
             $('#pubAuth').val(currentAuth);
         }
+        $('#pubyr').val(currentYear);
+        $('#type').val(currentType);
 
         // Load publications HTML from our REST endpoint.
         function loadPublications(page = 1) {
@@ -30,7 +45,7 @@
             const formParams = new URLSearchParams(formData);
             formParams.set('pg', page);
             // Build the REST endpoint URL with query parameters.
-            const endpoint = '/wp-json/publications/v1/html?' + formParams.toString();
+            const endpoint = (publicationsSettings.restUrl || '/wp-json/publications/v1/html') + '?' + formParams.toString();
 
             $.get(endpoint, function(html){
                 // Replace the results container with the rendered HTML.
@@ -62,6 +77,14 @@
             loadPublications(1);
         });
         $('#pubAuth').on('change', function() {
+            updateHash(1);
+            loadPublications(1);
+        });
+        $('#pubyr').on('change', function() {
+            updateHash(1);
+            loadPublications(1);
+        });
+        $('#type').on('change', function() {
             updateHash(1);
             loadPublications(1);
         });
